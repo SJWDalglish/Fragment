@@ -5,6 +5,7 @@ import abilities as ab
 from card import Card, Frame, Generator, Part, Bot
 from player import Player
 from random import randint, shuffle
+from resourcesHandler import ResourceHandler
 from tabulate import tabulate
 
 import datetime
@@ -46,9 +47,6 @@ class Ability:
         print("------")
 
 
-blank_bot = Bot(Frame("Bot", "None", 0, 0, "None"))
-
-
 def generate_pp(player, opponent, resource_handler, show=False):
     for i in range(4):
         bot = player.bots[i]
@@ -69,9 +67,9 @@ def generate_pp(player, opponent, resource_handler, show=False):
 
         # PP from Radiate
         if bot.abilities.count('Radiate') > 0:
-            self.pp += special_pp_gained * (len(bot.components) - 2)
+            player.pp += special_pp_gained * (len(bot.components) - 2)
             if show:
-                print(self.name + "'s bot " + self.bots[i].name + ' regained ' + str(
+                print(player.name + "'s bot " + player.bots[i].name + ' regained ' + str(
                     special_pp_gained * (len(bot.components) - 2)) + 'pp using repurposed hardware.')
             if opponent.bots[i].abilities.count("Reallocate") > 0:
                 opponent.pp += special_pp_gained
@@ -104,20 +102,6 @@ def generate_pp(player, opponent, resource_handler, show=False):
                         if show:
                             print(opponent.name + "'s bot " + opponent.bots[i].name + ' syphoned ' + str(
                                 special_pp_gained) + 'pp from opposing bot.')
-
-
-class ResourceHandler:
-    def __init__(self):
-        self.deck = []
-        for resource in resource_types:
-            for i in range(num_resources):
-                self.deck.append(resource)
-        shuffle(self.deck)
-        self.pile = self.deck[:4]
-        del self.deck[:4]
-
-    def show_pile(self):
-        print('\n' + " | ".join(self.pile) + '\n')
 
 
 def init_decks():
@@ -632,42 +616,6 @@ def display_field(player: Player, opponent: Player, resource_handler: ResourceHa
     player.show_stats()
     player.show_hand()
     print('\n' + ('+' * 50) + '\n')
-
-
-def select_card_list(card_list: [Card], player: Player, select_text: str, constraint=0):
-    card_selected = None
-    while True:
-        num_selected = input(select_text + 'or press [x] to cancel.')
-        if num_selected == 'x':
-            return None
-        elif not num_selected.isdecimal():
-            print('Not a valid input.')
-            continue
-        elif int(num_selected) in [x + 1 for x in list(range(len(card_list)))]:
-            card_selected = card_list[int(num_selected) - 1]
-            if card_selected.cost + constraint > player.ap:
-                print("Not enough AP!")
-                continue
-            return card_selected
-        print('Not a valid input.')
-        continue
-    return None
-
-
-def select_bot_list(player: Player, select_text: str):
-    bot_selected = None
-    while True:
-        num_selected = input(select_text + 'or press [x] to cancel.')
-        if num_selected == 'x':
-            return None
-        elif not num_selected.isdecimal():
-            print('Not a valid input.')
-            continue
-        elif int(num_selected) in [x + 1 for x in list(range(len(player.bots)))]:
-            return num_selected
-        print('Not a valid input.')
-        continue
-    return None
 
 
 def init_test():

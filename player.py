@@ -1,4 +1,14 @@
+from tabulate import tabulate
+from random import randint, shuffle
 from card import Card, Frame, Generator, Part, Bot
+from resourcesHandler import ResourceHandler
+import abilities as ab
+
+draw_cost = 1
+resource_swap_cost = 1
+resource_refresh_cost = 2
+bot_move_cost = 1
+blank_bot = Bot(Frame("Bot", "None", 0, 0, "None"))
 
 
 class Player:
@@ -24,17 +34,6 @@ class Player:
         elif self.resource == "Cultivate":
             output.append('Biomass')
         return output
-
-    def draw(self, show=False):
-        card = self.deck.pop()
-        self.hand.append(card)
-        self.pp -= draw_cost
-        if show:
-            print(self.name + ' draws card ' + card.name)
-        if self.resource == 'Acquire':
-            for i in range(4):
-                self.pp += special_pp_gained
-        return card
 
     def count_cards(self):
         card_count = [0, 0, 0, 0]
@@ -84,18 +83,16 @@ class Player:
         print(self.name + ' | Resource: ' + self.resource + ' | HP: ' + str(self.hp) + ' | PP: ' + str(
             self.pp) + ' | Cards: ' + str(len(self.hand)))
 
-    def ai_build(self, possible_combos, show=False):
-        choice = randint(0, len(possible_combos) - 1)
-        bot_num_selected = randint(0, 3)
-        frame_selected = possible_combos[choice][1]
-        new_bot = Bot(frame_selected, bot_num_selected + 1)
-
+    # Actions
+    def draw(self, show=False):
+        card = self.deck.pop()
+        self.hand.append(card)
+        self.pp -= draw_cost
         if show:
-            print(self.name + " is building a bot using " + frame_selected.name)
-        self.hand.remove(frame_selected)
-        self.pp -= frame_selected.cost
-        self.bots[bot_num_selected] = new_bot
-        return new_bot
+            print(self.name + ' draws card ' + card.name)
+        for i in range(4):
+            ab.disruption(self, i, show)
+        return card
 
     def build(self):
 
@@ -165,23 +162,6 @@ class Player:
         self.hand.remove(gen_selected)
         return 1
 
-    def ai_upgrade(self, possible_upgrades, show=False):
-        upgrade_bots = []
-        for bot in self.bots:
-            if not bot.isblank():
-                upgrade_bots.append(bot)
-        bot_choice = randint(0, len(upgrade_bots) - 1)
-        part_choice = randint(0, len(possible_upgrades) - 1)
-        part_selected = possible_upgrades[part_choice]
-
-        if show:
-            print(self.name + " is upgrading " + upgrade_bots[bot_choice].name + ' with ' + part_selected.name)
-        upgrade_bots[bot_choice].upgrade(part_selected)
-        self.pp -= part_selected.cost
-        self.hand.remove(part_selected)
-
-        return [upgrade_bots[bot_choice], part_selected]
-
     def upgrade(self):
         # Select a bot location
         self.show_bots()
@@ -221,12 +201,57 @@ class Player:
                 old_resource = resource_handler.pile[int(num_choice)]
                 resource_handler.pile[int(num_choice)] = resource_handler.deck.pop()
                 resource_handler.deck.insert(0, old_resource)
-                self.ap -= resource_swap_cost
-                if self.type == 'Consume' and old_resource == 'Fossil Fuel':
+                self.pp -= resource_swap_cost
+
+                # Blaze ability
+                if old_resource == 'Fossil Fuel':
                     for bot in self.bots:
-                        if not bot.isblank():
-                            bot.pp += special_pp_gained * 4
+                        self.pp += bot.abilities.count("Blaze") * 4
                 break
+
+    def refresh_resources(self, rh: ResourceHandler, show=False):
+        rh.deck = rh.pile + rh.deck
+        for i in range(4):
+            # Blaze ability
+            if rh.pile[i] == 'Fossil Fuel':
+                for bot in self.bots:
+                    self.pp += bot.abilities.count("Blaze") * 4
+        for i in range(4):
+            rh.pile[i] = rh.deck.pop()
+        self.pp -= resource_refresh_cost
+        if show:
+            print(self.name + ' is refreshing all resources')
+
+    # AI methods
+    def ai_build(self, possible_combos, show=False):
+        choice = randint(0, len(possible_combos) - 1)
+        bot_num_selected = randint(0, 3)
+        frame_selected = possible_combos[choice][1]
+        new_bot = Bot(frame_selected, bot_num_selected + 1)
+
+        if show:
+            print(self.name + " is building a bot using " + frame_selected.name)
+        self.hand.remove(frame_selected)
+        self.pp -= frame_selected.cost
+        self.bots[bot_num_selected] = new_bot
+        return new_bot
+
+    def ai_upgrade(self, possible_upgrades, show=False):
+        upgrade_bots = []
+        for bot in self.bots:
+            if not bot.isblank():
+                upgrade_bots.append(bot)
+        bot_choice = randint(0, len(upgrade_bots) - 1)
+        part_choice = randint(0, len(possible_upgrades) - 1)
+        part_selected = possible_upgrades[part_choice]
+
+        if show:
+            print(self.name + " is upgrading " + upgrade_bots[bot_choice].name + ' with ' + part_selected.name)
+        upgrade_bots[bot_choice].upgrade(part_selected)
+        self.pp -= part_selected.cost
+        self.hand.remove(part_selected)
+
+        return [upgrade_bots[bot_choice], part_selected]
 
     def ai_swap_resource(self, rh, show=False, possible_swaps=[]):
         if possible_swaps == []:
@@ -243,19 +268,6 @@ class Player:
         if show:
             print(self.name + ' is swapping resource ' + old_resource + ' for ' + new_resource)
         return [num_choice, old_resource, new_resource]
-
-    def refresh_resources(self, rh, show=False):
-        rh.deck = rh.pile + rh.deck
-        for i in range(4):
-            if self.type == 'Consume' and rh.pile[i] == 'Fossil Fuel':
-                for bot in self.bots:
-                    if not bot.isblank():
-                        bot.pp += special_pp_gained * 4
-        for i in range(4):
-            rh.pile[i] = rh.deck.pop()
-        self.ap -= resource_refresh_cost
-        if show:
-            print(self.name + ' is refreshing all resources')
 
     def attack(self, opponent, show=False):
         for i in range(4):
@@ -326,3 +338,39 @@ class Player:
                 bot = opponent.bots[i]
                 opponent.deck = bot.components + opponent.deck
                 opponent.bots[i] = blank_bot
+
+
+def select_card_list(card_list: [Card], player: Player, select_text: str, constraint=0):
+    card_selected = None
+    while True:
+        num_selected = input(select_text + 'or press [x] to cancel.')
+        if num_selected == 'x':
+            return None
+        elif not num_selected.isdecimal():
+            print('Not a valid input.')
+            continue
+        elif int(num_selected) in [x + 1 for x in list(range(len(card_list)))]:
+            card_selected = card_list[int(num_selected) - 1]
+            if card_selected.cost + constraint > player.pp:
+                print("Not enough AP!")
+                continue
+            return card_selected
+        print('Not a valid input.')
+        continue
+    return None
+
+
+def select_bot_list(player: Player, select_text: str):
+    bot_selected = None
+    while True:
+        num_selected = input(select_text + 'or press [x] to cancel.')
+        if num_selected == 'x':
+            return None
+        elif not num_selected.isdecimal():
+            print('Not a valid input.')
+            continue
+        elif int(num_selected) in [x + 1 for x in list(range(len(player.bots)))]:
+            return num_selected
+        print('Not a valid input.')
+        continue
+    return None

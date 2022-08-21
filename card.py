@@ -88,9 +88,6 @@ class Bot:
     def dmg(self, dmg: int):
         self.current_hp -= dmg
 
-    def gen(self, pow: int):
-        self.pp += pow
-
     def upgrade(self, part: Part):
         num_components = len(self.components)
         self.components.insert(num_components - 1, part)
