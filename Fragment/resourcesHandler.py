@@ -16,6 +16,12 @@ class ResourceHandler:
     def show_pile(self):
         print('\n' + " | ".join(self.pile) + '\n')
 
+    def list_pile(self):
+        resource_pile = ""
+        for i in range(4):
+            resource_pile += "\n[" + str(i) + "]" + self.pile[i]
+        print(resource_pile)
+
     def swap_resource(self, i: int):
         old_resource = self.pile[i]
         new_resource = self.deck.pop()

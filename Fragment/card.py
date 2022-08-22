@@ -1,3 +1,4 @@
+# Card types
 types = ["Acquire", "Augment", "Consume", "Convert", "Cultivate", "Preserve"]
 resource_types = ["Biomass", "Power Cell", "Fossil Fuel", "Radioactive Material", "Weather Event"]
 
