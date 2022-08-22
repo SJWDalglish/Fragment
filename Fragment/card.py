@@ -21,9 +21,9 @@ class Card(object):
         print("Ability 2: " + self.ability2)
         print("------")
 
-    def listify(self):
-        return [self.name, type(self).__name__, str(self.cost) + "PP", str(self.hp) + "HP", self.ability1,
-                self.ability2]  # Removed self.ability
+    def listify(self, discount=0):
+        return [self.name, type(self).__name__, str(min(0, self.cost - discount)) + "PP", str(self.hp) + "HP", self.ability1,
+                self.ability2]
 
 
 class Generator(Card):

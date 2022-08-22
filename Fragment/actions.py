@@ -1,18 +1,12 @@
 from tabulate import tabulate
 from random import randint, shuffle
 from player import Player
-from card import Card, Frame, Generator, Part, Bot
+from card import *
 from resourcesHandler import ResourceHandler
 import abilities as ab
 
-# Action costs
-draw_cost = 1
-resource_swap_cost = 1
-resource_refresh_cost = 2
-bot_move_cost = 1
 
-
-def select_card_list(card_list: [Card], player: Player, select_text: str, constraint=0):
+def select_card_list(card_list: [Card], player: Player, select_text: str, discount=0):
     card_selected = None
     while True:
         num_selected = input(select_text + 'or press [x] to cancel.')
@@ -23,7 +17,7 @@ def select_card_list(card_list: [Card], player: Player, select_text: str, constr
             continue
         elif int(num_selected) in [x + 1 for x in list(range(len(card_list)))]:
             card_selected = card_list[int(num_selected) - 1]
-            if card_selected.cost + constraint > player.pp:
+            if card_selected.cost - discount > player.pp:
                 print("Not enough PP!")
                 continue
             return card_selected
@@ -48,12 +42,20 @@ def select_bot_list(player: Player, select_text: str):
 
 
 def draw(player: Player, show=False):
+    # Handle discount ability
+    draw_discount = 0
+    for i in range(4):
+        draw_discount += player.bots[i].abilities.count("Agile")
+
     card = player.deck.pop()
     player.hand.append(card)
-    player.pp -= draw_cost
+    if draw_discount <= player.actions.count("Draw"):
+        player.pp -= player.draw_cost
 
+    # Log action
     if show:
         print(player.name + ' draws card ' + card.name)
+    player.actions.append("Draw")
 
     for i in range(4):
         ab.disruption(player, i, show)
@@ -61,9 +63,15 @@ def draw(player: Player, show=False):
     return card
 
 
-def build(player: Player):
+def build(player: Player, show=False):
+    # Handle discount ability
+    build_discount = 0
+    # if player.actions.count("Build") == 0:
+    for i in range(4):
+        build_discount += player.bots[i].abilities.count("Pollinate")
+
     # Select a frame
-    frame_cards = player.show_hand(Frame)
+    frame_cards = player.show_hand(Frame, build_discount)
     if len(frame_cards) == 0:
         print('No frames in hand!')
         return 0
@@ -93,15 +101,26 @@ def build(player: Player):
                 continue
         break
 
-    # Clean up hand, minus ap, add bot
+    # Clean up hand, minus pp, add bot
     new_bot = Bot(frame_selected, int(bot_num_selected))
     player.hand.remove(frame_selected)
-    player.pp -= frame_selected.cost
+    player.pp -= min(0, frame_selected.cost - build_discount)
     player.bots[int(bot_num_selected) - 1] = new_bot
+
+    # Log action
+    if show:
+        print(player.name + ' built ' + new_bot.name)
+    player.actions.append("Build")
     return 1
 
 
-def power(player: Player):
+def power(player: Player, show=False):
+    # Handle discount ability
+    power_discount = 0
+    # if player.actions.count("Power") == 0:
+    for i in range(4):
+        power_discount += player.bots[i].abilities.count("Lightning")
+
     # Select a bot location
     player.show_bots()
     while True:
@@ -114,7 +133,7 @@ def power(player: Player):
         break
 
     # Select a generator
-    gen_cards = player.show_hand(Generator)
+    gen_cards = player.show_hand(Generator, power_discount)
     if len(gen_cards) == 0:
         print('No generators in hand!')
         return 0
@@ -124,13 +143,24 @@ def power(player: Player):
 
     # Clean up
     player.bots[int(bot_selected) - 1].power(gen_selected)
-    player.pp -= gen_selected.cost
+    player.pp -= min(0, gen_selected.cost - power_discount)
     player.hand.remove(gen_selected)
     player.deck.append(gen_selected)
+
+    # Log action
+    if show:
+        print(player.name + ' powered ' + player.bots[int(bot_selected) - 1].name)
+    player.actions.append("Power")
     return 1
 
 
-def upgrade(player: Player):
+def upgrade(player: Player, show=False):
+    # Handle discount ability
+    upgrade_discount = 0
+    # if player.actions.count("Power") == 0:
+    for i in range(4):
+        upgrade_discount += player.bots[i].abilities.count("Fusion")
+
     # Select a bot location
     player.show_bots()
     while True:
@@ -156,8 +186,14 @@ def upgrade(player: Player):
     player.pp -= part_selected.cost
     player.hand.remove(part_selected)
 
+    # Log action
+    if show:
+        print(player.name + ' upgraded ' + player.bots[int(bot_selected) - 1].name)
+    player.actions.append("Upgrade")
+    return 1
 
-def swap_resource(player: Player, rh: ResourceHandler):
+
+def swap_resource(player: Player, rh: ResourceHandler, show=False):
     rh.list_pile()
     while True:
         num_choice = input('Select a resource to swap or press [x] to cancel.')
@@ -172,6 +208,12 @@ def swap_resource(player: Player, rh: ResourceHandler):
                 for bot in player.bots:
                     player.pp += bot.abilities.count("Blaze") * 4
             break
+
+    # Log action
+    if show:
+        print(player.name + ' swapped ' + o + ' for ' + n)
+    player.actions.append("Swap")
+    return 1
 
 
 def refresh_resources(player, rh: ResourceHandler, show=False):
@@ -189,6 +231,12 @@ def refresh_resources(player, rh: ResourceHandler, show=False):
     player.pp -= resource_refresh_cost
     if show:
         print(player.name + ' is refreshing all resources')
+
+    # Log action
+    if show:
+        print(player.name + ' refreshed all resources ')
+    player.actions.append("Refresh")
+    return 1
 
 
 def attack(self, opponent, show=False):

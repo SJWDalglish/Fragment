@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import abilities as ab
 
-from card import Card, Frame, Generator, Part, Bot
+from card import *
 from player import Player
 from random import randint, shuffle
 from resourcesHandler import ResourceHandler

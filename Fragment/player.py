@@ -1,24 +1,37 @@
 from tabulate import tabulate
 from random import randint, shuffle
-from card import Card, Frame, Generator, Part, Bot
-from resourcesHandler import ResourceHandler
+from card import *
+from resourcesHandler import *
 import abilities as ab
 
 blank_bot = Bot(Frame("Bot", "None", 0, 0, "None", "None"))
 
 
 class Player:
+    # Action costs
+    _start_pp = 0
+    _start_hp = 20
+    _draw_cost = 1
+    _resource_swap_cost = 1
+    _refresh_cost = 2
+    _move_cost = 1
+
     def __init__(self, name: str, resource: str, deck, ai=False, strategy=[1, 1, 1, 1, 1, 1]):
         self.name = name
         self.resource = resource
-        self.hp = 20
+        self.hp = _start_hp
         self.deck = deck
         self.bots = [blank_bot, blank_bot, blank_bot, blank_bot]
         self.hand = []
         self.discard = []
-        self.pp = 0
+        self.pp = _start_pp
         self.ai = ai
         self.strategy = strategy
+        self.draw_cost = _draw_cost
+        self.resource_swap_cost = _resource_swap_cost
+        self.refresh_cost = _refresh_cost
+        self.move_cost = _move_cost
+        self.actions = []
 
     def get_resource_types(self):
         output = ['Power Cell']
@@ -53,12 +66,12 @@ class Player:
                 cards.append(card)
         return cards
 
-    def show_hand(self, class_name=Card):
+    def show_hand(self, class_name=Card, discount=0):
         cards = []
         card_list = []
         for card in self.hand:
             if isinstance(card, class_name):
-                card_formatted = card.listify()
+                card_formatted = card.listify(discount)
                 card_formatted.insert(0, str(len(card_list) + 1))
                 card_list.append(card_formatted)
                 cards.append(card)
