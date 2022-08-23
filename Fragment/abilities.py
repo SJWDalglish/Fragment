@@ -24,9 +24,45 @@ class Ability:
 
 
 def disruption(player: Player, i: int, show=False):
-    player.pp += special_pp_gained * player.bots[i].abilities.count("Disruption")
+    health_gained = 2 * player.bots[i].abilities.count("Disruption")
+    player.bots[i].current_hp += health_gained
+    player.bots[i].max_hp += 2 * health_gained
     if show:
-        print(player.name, "'s bot ", player.bots[i].name, " syphoned ", special_pp_gained, " from the scrapheap.")
+        print(player.name, "'s bot ", player.bots[i].name, " syphoned ", health_gained, " health from the scrapheap.")
+
+
+def refraction(player: Player, i: int, show=False):
+    health_gained = 2 * player.bots[i].abilities.count("Refraction")
+    player.bots[i].current_hp += health_gained
+    player.bots[i].max_hp += health_gained
+    if show:
+        print(player.name, "'s bot ", player.bots[i].name, " generated ", health_gained, " health from the wind as they moved.")
+
+
+
+def burn(player: Player, i: int, show=False):
+    health_gained = 2 * player.bots[i].abilities.count("Burn")
+    player.bots[i].current_hp += health_gained
+    player.bots[i].max_hp += health_gained
+    if show:
+        print(player.name, "'s bot ", player.bots[i].name, " smelted ", health_gained, " health from mined resources.")
+
+
+def rain_recollection(player: Player, i: int, show=False):
+    health_gained = 2 * player.bots[i].abilities.count("Rain Recollection")
+    player.bots[i].current_hp += health_gained
+    player.bots[i].max_hp += health_gained
+    if show:
+        print(player.name, "'s bot ", player.bots[i].name, " collected ", health_gained, " health from moving showers.")
+
+
+def leech(player: Player, i: int, show=False):
+    health_gained = 2 * player.bots[i].abilities.count("Leech")
+    player.bots[i].current_hp += health_gained
+    player.bots[i].max_hp += health_gained
+    if show:
+        print(player.name, "'s bot ", player.bots[i].name, " leeched ", health_gained, " health from the new bot.")
+
 
 
 def reallocate(opponent: Player, i: int, show=False):

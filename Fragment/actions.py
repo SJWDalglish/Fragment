@@ -44,11 +44,15 @@ def select_bot_list(player: Player, select_text: str):
 def draw(player: Player, show=False):
     # Handle discount ability
     draw_discount = 0
+    extra_cards = 0
     for i in range(4):
         draw_discount += player.bots[i].abilities.count("Agile")
+        extra_cards += player.bots[i].abilities.count("Circle Back")
 
-    card = player.deck.pop()
-    player.hand.append(card)
+    for i in range(extra_cards + 1):
+        card = player.deck.pop()
+        player.hand.append(card)
+
     if draw_discount <= player.actions.count("Draw"):
         player.pp -= player.draw_cost
 
@@ -106,6 +110,10 @@ def build(player: Player, show=False):
     player.hand.remove(frame_selected)
     player.pp -= min(0, frame_selected.cost - build_discount)
     player.bots[int(bot_num_selected) - 1] = new_bot
+
+    # Post action abilities
+    for i in range(4):
+        ab.leech(player, i, show)
 
     # Log action
     if show:
@@ -183,8 +191,13 @@ def upgrade(player: Player, show=False):
 
     # Clean up
     player.bots[int(bot_selected) - 1].upgrade(part_selected)
-    player.pp -= part_selected.cost
+    player.pp -= min(0, part_selected.cost - upgrade_discount)
     player.hand.remove(part_selected)
+
+    # Post action abilities
+    for i in range(4):
+        player.bots[i].current_hp += player.bots[i].count("Research")
+        player.bots[i].max_hp += player.bots[i].count("Research")
 
     # Log action
     if show:
@@ -193,7 +206,62 @@ def upgrade(player: Player, show=False):
     return 1
 
 
+def move(player: Player, show=False):
+    # Handle discount ability
+    move_discount = 0
+    for i in range(4):
+        move_discount += player.bots[i].abilities.count("Hurricane")
+
+    # Select a bot location
+    player.show_bots()
+    while True:
+        num_one_selected = select_bot_list(player, 'Select a bot to move ')
+        if num_one_selected is None:
+            return 0
+        if player.bots[int(num_one_selected) - 1].isblank():
+            print('No bot selected.')
+            continue
+        break
+
+    # Select a bot location
+    player.show_bots()
+    while True:
+        num_two_selected = select_bot_list(player, 'Select a location to move to ')
+        if num_two_selected is None:
+            return 0
+        if player.bots[int(num_two_selected) - 1].isblank():
+            print('No bot selected.')
+            continue
+        break
+
+    # Swap bots
+    tmp_bot = player.bots[int(num_one_selected)]
+    player.bots[int(num_one_selected)] = player.bots[int(num_two_selected)]
+    player.bots[int(num_two_selected)] = tmp_bot
+
+    # Resolve power cost
+    if move_discount <= player.actions.count("Move"):
+        player.pp -= player.move_cost
+
+    # Post action abilities
+    for i in range(4):
+        ab.refraction(player, i, show)
+        abi.rain_recollection(player, i, show)
+
+    # Log action
+    if show:
+        print(player.name + ' moved ' + player.bots[int(bot_one_selected) - 1].name)
+    player.actions.append("Move")
+    return 1
+
+
 def swap_resource(player: Player, rh: ResourceHandler, show=False):
+    # Handle discount ability
+    swap_discount = 0
+    # if player.actions.count("Power") == 0:
+    for i in range(4):
+        swap_discount += player.bots[i].abilities.count("Frack")
+
     rh.list_pile()
     while True:
         num_choice = input('Select a resource to swap or press [x] to cancel.')
@@ -201,13 +269,18 @@ def swap_resource(player: Player, rh: ResourceHandler, show=False):
             return 0
         if num_choice in [str(x) for x in range(4)]:
             o, n = rh.swap_resource(int(num_choice))
-            player.pp -= resource_swap_cost
+            if swap_discount <= player.actions.count("Swap"):
+                player.pp -= resource_swap_cost
 
             # Blaze ability
             if o == 'Fossil Fuel':
                 for bot in player.bots:
                     player.pp += bot.abilities.count("Blaze") * 4
             break
+
+    # Post action abilities
+    for i in range(4):
+        ab.burn(player, i, show)
 
     # Log action
     if show:
@@ -217,6 +290,12 @@ def swap_resource(player: Player, rh: ResourceHandler, show=False):
 
 
 def refresh_resources(player, rh: ResourceHandler, show=False):
+    # Handle discount ability
+    swap_discount = 0
+    # if player.actions.count("Power") == 0:
+    for i in range(4):
+        swap_discount += player.bots[i].abilities.count("Frack")
+
     rh.deck = rh.pile + rh.deck
 
     # Blaze ability
@@ -228,9 +307,8 @@ def refresh_resources(player, rh: ResourceHandler, show=False):
     # Draw new resources
     for i in range(4):
         rh.pile[i] = rh.deck.pop()
-    player.pp -= resource_refresh_cost
-    if show:
-        print(player.name + ' is refreshing all resources')
+    if swap_discount <= player.actions.count("Swap"):
+        player.pp -= resource_refresh_cost
 
     # Log action
     if show:
