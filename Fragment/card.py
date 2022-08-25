@@ -36,7 +36,7 @@ class Generator(Card):
 
 class Frame(Card):
     def __init__(self, name: str, deck: str, cost: int, hp: int, desc: str, action1: str, action2: str):
-        super().__init__(name, deck, cost, hp, action1=action1, action2=action2)
+        super().__init__(name, deck, cost, hp, desc, action1=action1, action2=action2)
 
 
 class Part(Card):

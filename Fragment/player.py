@@ -4,7 +4,7 @@ from card import *
 from resourcesHandler import *
 import abilities as ab
 
-blank_bot = Bot(Frame("Bot", "None", 0, 0, "None", "None"))
+blank_bot = Bot(Frame("Bot", "None", 0, 0, "None", "None", "None"))
 
 
 class Player:
@@ -104,4 +104,11 @@ class Player:
     def show_stats(self):
         print(self.name + ' | Resource: ' + self.resource + ' | HP: ' + str(self.hp) + ' | PP: ' + str(
             self.pp) + ' | Cards: ' + str(len(self.hand)))
+
+    # TODO: Refactor abilities to integrate this code
+    def gen_pp(self, bot_num: int, pp_gain: int):
+        if self.bots[i].stunned:
+            return 0
+        self.pp += pp_gain
+        return 1
 
