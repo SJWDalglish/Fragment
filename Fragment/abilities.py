@@ -1,7 +1,8 @@
 from player import Player
 
 # Ability values
-pp_gained = 2
+default_pp_gained = 2
+default_hp_gained = 2
 special_pp_gained = 1
 
 
@@ -23,52 +24,23 @@ class Ability:
         print("------")
 
 
-def disruption(player: Player, i: int, show=False):
-    health_gained = 2 * player.bots[i].abilities.count("Disruption")
-    player.bots[i].current_hp += health_gained
-    player.bots[i].max_hp += 2 * health_gained
+def hp_ability(p: Player, o: Player, bot_num: int, name: str, show=False):
+    hp_gained = default_hp_gained * p.bots[bot_num].abilities.count(name)
+    p.bots[bot_num].current_hp += hp_gained
+    reallocate(o, bot_num, show)
     if show:
-        print(player.name, "'s bot ", player.bots[i].name, " syphoned ", health_gained, " health from the scrapheap.")
+        print(p.name, "'s bot ", p.bots[bot_num].name, " regained ", hp_gained, " HP using ", name)
 
 
-def refraction(player: Player, i: int, show=False):
-    health_gained = 2 * player.bots[i].abilities.count("Refraction")
-    player.bots[i].current_hp += health_gained
-    player.bots[i].max_hp += health_gained
+def pp_ability(p: Player, bot_num: int, name: str, show=False):
+    pp_gained = default_pp_gained * p.bots[bot_num].abilities.count(name)
+    p.pp += pp_gained
     if show:
-        print(player.name, "'s bot ", player.bots[i].name, " generated ", health_gained, " health from the wind as they moved.")
+        print(p.name, "'s bot ", p.bots[bot_num].name, " generate ", pp_gained, " PP using ", name)
 
 
-
-def burn(player: Player, i: int, show=False):
-    health_gained = 2 * player.bots[i].abilities.count("Burn")
-    player.bots[i].current_hp += health_gained
-    player.bots[i].max_hp += health_gained
+def reallocate(o: Player, i: int, show=False):
+    o.pp += special_pp_gained * o.bots[i].abilities.count("Reallocate")
     if show:
-        print(player.name, "'s bot ", player.bots[i].name, " smelted ", health_gained, " health from mined resources.")
-
-
-def rain_recollection(player: Player, i: int, show=False):
-    health_gained = 2 * player.bots[i].abilities.count("Rain Recollection")
-    player.bots[i].current_hp += health_gained
-    player.bots[i].max_hp += health_gained
-    if show:
-        print(player.name, "'s bot ", player.bots[i].name, " collected ", health_gained, " health from moving showers.")
-
-
-def leech(player: Player, i: int, show=False):
-    health_gained = 2 * player.bots[i].abilities.count("Leech")
-    player.bots[i].current_hp += health_gained
-    player.bots[i].max_hp += health_gained
-    if show:
-        print(player.name, "'s bot ", player.bots[i].name, " leeched ", health_gained, " health from the new bot.")
-
-
-
-def reallocate(opponent: Player, i: int, show=False):
-    if opponent.bots[i].abilities.count("Reallocate") > 0:
-        opponent.pp += special_pp_gained
-        if show:
-            print(opponent.name + "'s bot " + opponent.bots[i].name + ' syphoned ' + str(
-                special_pp_gained) + 'pp from opposing bot.')
+        print(o.name + "'s bot " + o.bots[i].name + ' syphoned ' + str(special_pp_gained) + 'PP from opposing bot.')
 
