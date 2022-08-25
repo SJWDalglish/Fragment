@@ -4,11 +4,14 @@ import abilities as ab
 
 from card import *
 from player import Player
+from playerActions import *
 from random import randint, shuffle
 from resourcesHandler import ResourceHandler
 from tabulate import tabulate
 
 import datetime
+
+# TODO: Refactor code and import modules
 
 types = ["Acquire", "Augment", "Consume", "Convert", "Cultivate", "Preserve"]
 resource_types = ["Biomass", "Power Cell", "Fossil Fuel", "Radioactive Material", "Weather Event"]
@@ -27,63 +30,6 @@ resource_refresh_cost = 2
 bot_move_cost = 1
 pp_gained = 2
 special_pp_gained = 1
-
-
-def generate_pp(player, opponent, resource_handler, show=False):
-    for i in range(4):
-        bot = player.bots[i]
-        if bot.isblank():
-            continue
-
-        # Gain PP from adjacent resource
-        if bot.resources.count(resource_handler.pile[i]) > 0:
-            player.pp += pp_gained
-            if show:
-                print(player.name + "'s bot " + player.bots[i].name + ' regained ' + str(
-                    pp_gained) + 'pp using adjacent resource.')
-            if opponent.bots[i].abilities.count("Reallocate") > 0:
-                opponent.pp += special_pp_gained
-                if show:
-                    print(opponent.name + "'s bot " + opponent.bots[i].name + ' syphoned ' + str(
-                        special_pp_gained) + 'pp from opposing bot.')
-
-        # PP from Radiate
-        if bot.abilities.count('Radiate') > 0:
-            player.pp += special_pp_gained * (len(bot.components) - 2)
-            if show:
-                print(player.name + "'s bot " + player.bots[i].name + ' regained ' + str(
-                    special_pp_gained * (len(bot.components) - 2)) + 'pp using repurposed hardware.')
-            if opponent.bots[i].abilities.count("Reallocate") > 0:
-                opponent.pp += special_pp_gained
-                if show:
-                    print(opponent.name + "'s bot " + opponent.bots[i].name + ' syphoned ' + str(
-                        special_pp_gained) + 'pp from opposing bot.')
-
-        # PP from Storm Drain
-        if bot.abilities.count('Storm Drain') > 0:
-            for j in range(4):
-                if (j != i) and (resource_handler.pile[j] == 'Weather Event'):
-                    self.pp += special_pp_gained
-                    if show:
-                        print(self.name + "'s bot " + self.bots[i].name + ' regained ' + str(
-                            special_pp_gained) + 'pp due to inclement weather.')
-                    if opponent.bots[i].abilities.count("Reallocate") > 0:
-                        opponent.pp += special_pp_gained
-                        if show:
-                            print(opponent.name + "'s bot " + opponent.bots[i].name + ' syphoned ' + str(
-                                special_pp_gained) + 'pp from opposing bot.')
-        if bot.type == 'Cultivate':
-            for j in range(4):
-                if (j != i) and (self.bots[j].type == 'Cultivate'):
-                    self.bots[i].pp += special_pp_gained
-                    if show:
-                        print(self.name + "'s bot " + self.bots[i].name + ' regained ' + str(
-                            special_pp_gained) + 'pp due to a thriving ecosystem.')
-                    if opponent.bots[i].type == "Acquire":
-                        opponent.bots[i].pp += special_pp_gained
-                        if show:
-                            print(opponent.name + "'s bot " + opponent.bots[i].name + ' syphoned ' + str(
-                                special_pp_gained) + 'pp from opposing bot.')
 
 
 def init_decks():

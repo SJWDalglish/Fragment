@@ -12,7 +12,6 @@ class Ability:
         self.ability_type = ability_type
         self.cost = cost
         self.desc = desc
-        self.dmg = dmg
 
     def display(self):
         print("\n------\nAbility: ", self.name)
@@ -25,6 +24,8 @@ class Ability:
 
 
 def hp_ability(p: Player, o: Player, bot_num: int, name: str, show=False):
+    if p.bots[bot_num].stunned:
+        return 0
     hp_gained = default_hp_gained * p.bots[bot_num].abilities.count(name)
     p.bots[bot_num].current_hp += hp_gained
     reallocate(o, bot_num, show)
@@ -33,6 +34,8 @@ def hp_ability(p: Player, o: Player, bot_num: int, name: str, show=False):
 
 
 def pp_ability(p: Player, bot_num: int, name: str, show=False):
+    if p.bots[bot_num].stunned:
+        return 0
     pp_gained = default_pp_gained * p.bots[bot_num].abilities.count(name)
     p.pp += pp_gained
     if show:
@@ -40,6 +43,8 @@ def pp_ability(p: Player, bot_num: int, name: str, show=False):
 
 
 def reallocate(o: Player, i: int, show=False):
+    if o.bots[i].stunned:
+        return 0
     o.pp += special_pp_gained * o.bots[i].abilities.count("Reallocate")
     if show:
         print(o.name + "'s bot " + o.bots[i].name + ' syphoned ' + str(special_pp_gained) + 'PP from opposing bot.')

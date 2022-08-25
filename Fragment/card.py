@@ -4,13 +4,16 @@ resource_types = ["Biomass", "Power Cell", "Fossil Fuel", "Radioactive Material"
 
 
 class Card(object):
-    def __init__(self, name: str, resource: str, cost: int, hp: int, ability1: str, ability2="None"):
+    def __init__(self, name: str, deck: str, cost: int, hp: int, desc: str, ability1="None", ability2="None", action1="None", action2="None"):
         self.name = name
-        self.resource = resource
         self.cost = cost
+        self.deck = deck
         self.hp = hp
+        self.desc = desc
         self.ability1 = ability1
         self.ability2 = ability2
+        self.action1 = action1
+        self.action2 = action2
 
     def display(self):
         print("\n------\nGenerator: " + self.name)
@@ -27,19 +30,23 @@ class Card(object):
 
 
 class Generator(Card):
-    def __init__(self, name: str, resource: str, cost: int, hp: int, ability: str):
-        super().__init__(name, resource, cost, hp, ability)
+    def __init__(self, name: str, deck: str, cost: int, hp: int, desc: str, ability1: str):
+        super().__init__(name, deck, cost, hp, desc, ability1)
 
 
 class Frame(Card):
-    def __init__(self, name: str, resource: str, cost: int, hp: int, ability1: str, ability2: str):
-        super().__init__(name, resource, cost, hp, ability1, ability2)
+    def __init__(self, name: str, deck: str, cost: int, hp: int, desc: str, action1: str, action2: str):
+        super().__init__(name, deck, cost, hp, action1=action1, action2=action2)
 
 
 class Part(Card):
-    def __init__(self, name: str, cost: int, hp: int, ability: str):
-        type = "None"
-        super().__init__(name, type, cost, hp, ability)
+    def __init__(self, name: str, cost: int, hp: int, desc: str, action: str):
+        super().__init__(name, "All", cost, hp, action1=action)
+
+
+class Mechanic(Card):
+    def __init__(self, name: str, cost: int, desc: str):
+        super().__init__(name, "All", cost, 0, desc)
 
 
 class Bot:
@@ -48,28 +55,29 @@ class Bot:
         self.type = None
         self.current_hp = frame.hp
         self.max_hp = frame.hp
-        self.abilities = [frame.ability1, frame.ability2]
+        self.abilities = []
+        self.actions = [frame.action1, frame.action2]
         self.components = [frame]
         self.position = position
-        self.resources = []
-        self.resource = "None"
+        self.stunned = False
 
     def power(self, gen: Generator):
-        self.resource = gen.resource
         self.abilities.append(gen.ability1)
+        if ability2 != "None":
+            self.abilities.append(gen.ability2)
         self.components.insert(0, gen)
         self.name = ""
         for comps in self.components:
             self.name += comps.name
-        self.resources = ['Power Cell']
-        if self.type == 'Augment':
-            self.resources.append('Radioactive Material')
-        elif self.type == 'Consume':
-            self.resources.append('Fossil Fuel')
-        elif self.type == "Convert":
-            self.resources.append('Weather Event')
-        elif self.type == "Cultivate":
-            self.resources.append('Biomass')
+        # self.resources = ['Power Cell']
+        # if self.type == 'Augment':
+        #     self.resources.append('Radioactive Material')
+        # elif self.type == 'Consume':
+        #     self.resources.append('Fossil Fuel')
+        # elif self.type == "Convert":
+        #     self.resources.append('Weather Event')
+        # elif self.type == "Cultivate":
+        #     self.resources.append('Biomass')
 
     def display_name(self):
         print(self.name)
@@ -81,6 +89,10 @@ class Bot:
         for i in range(len(self.abilities)):
             print("   [" + str(i) + "] " + self.abilities[i])
         print("------")
+
+    def display_actions(self):
+        for i in range(len(self.actions)):
+            print("Action " + str(i + 1) + ": " + self.actions[i])
 
     def display_abilities(self):
         for i in range(len(self.abilities)):
@@ -97,7 +109,7 @@ class Bot:
             self.name += comps.name
         self.max_hp += part.hp
         self.current_hp += part.hp
-        self.abilities.append(part.ability1)
+        self.actions.append(part.action1)
 
     def stringify(self):
         return self.name + "\nHP: " + str(self.current_hp) + "/" + str(self.max_hp)
@@ -106,3 +118,9 @@ class Bot:
         if self.name == 'BlankBot':
             return True
         return False
+
+    def stun(self):
+        self.stunned = True
+
+    def awaken(self):
+        self.stunned = False
