@@ -42,18 +42,6 @@ class Player:
         self.actions = []
         self.def_bonus = 0
 
-    def get_resource_types(self):
-        output = ['Power Cell']
-        if self.resource == 'Augment':
-            output.append('Radioactive Material')
-        elif self.resource == 'Consume':
-            output.append('Fossil Fuel')
-        elif self.resource == "Convert":
-            output.append('Weather Event')
-        elif self.resource == "Cultivate":
-            output.append('Biomass')
-        return output
-
     def count_cards(self):
         card_count = [0, 0, 0, 0]
         for card in self.hand:

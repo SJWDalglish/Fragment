@@ -1,24 +1,6 @@
 import random
 import abilities as ab
-from card import Bot
-from player import Player
-
-
-class Action:
-    def __init__(self, name: str, cost: int, desc: str, dmg: int):
-        self.name = name
-        self.cost = cost
-        self.desc = desc
-        self.dmg = dmg
-
-    def display(self):
-        print("\n------\nAbility: ", self.name)
-        print("Type: ", self.ability_type)
-        if self.ability_type == "Active":
-            print("Cost: ", self.cost)
-            print("Damage: ", self.dmg)
-        print("Effect: " + self.desc)
-        print("------")
+from player import Player, blank_bot
 
 
 def cointoss():
@@ -26,46 +8,68 @@ def cointoss():
 
 
 def rolld4():
-    return random.randint(1,4)
+    return random.randint(1, 4)
 
 
-def basic_attack(p: Player, o: Player, attacker, target, cost: int, dmg: int, name:str, show=False):
+def basic_attack(p: Player, o: Player, i: int, cost: int, dmg: int, name: str, show=False):
+    if p.pp < cost:
+        if show:
+            print("Not enough PP!")
+        return 0
     p.pp -= cost
 
-    dmg = max(0, dmg + attacker.atk_bonus - target.def_bonus)
+    dmg = max(0, dmg + p.bots[i].atk_bonus - o.bots[i].def_bonus)
 
-    target.hp -= dmg
+    if o.bots[i].isblank():
+        o.hp -= dmg
+        if show:
+            print(p.name, " did ", dmg, " damage to ", o.name, " using ", name)
+    else:
+        o.bots[i].hp -= dmg
+        if show:
+            print(p.name, " did ", dmg, " damage to ", o.bots[i].name, " using ", name)
+        if o.bots[i].hp <= 0:
+            destroy_bot(o, p, i, show)
 
-    for i in range(attacker.count("Scorch")):
-        o.bots[rolld4()].hp -= 1
+    for j in range(p.bots[i].count("Scorch")):
+        t2 = rolld4()
+        o.bots[t2].hp -= 1
+        if show:
+            print(p.name, " did ", 1, " damage to ", o.bots[t2].name, " using Scorch")
+        if o.bots[i].hp <= 0:
+            destroy_bot(o, p, i, show)
 
-    if target.abilities.count("Whirlwind"):
-        attacker.stunned = True
+    if o.bots[i].abilities.count("Whirlwind") > 1:
+        p.bots[i].stunned = True
+        if show:
+            print(o.bots[i].name, " stunned ", p.bots[i].name, " using Whirlwind")
 
-    if show:
-        print(p.name, " did ", dmg, " damage to ", target.name, " using ", name)
     return 1
 
 
-def roll_attack(p: Player, o: Player, attacker, target, cost: int, coins: int, coin_dmg: int, name: str, show=False):
-    p.pp -= cost
+def destroy_bot(p: Player, o: Player, dead_bot_num: int, show=False):
+    db = p.bots[dead_bot_num]
 
+    if db.hp > 0:
+        print("Error: Tried destroying a bot with health remaining.")
+        return 0
+
+    p.discard.extend(db.components)
+    p.bots[dead_bot_num] = blank_bot
+
+    for i in range(4):
+        p.pp += p.bots[i].count("Recycle") * p.default_pp_gained
+        o.pp += o.bots[i].count("Spare Parts") * o.default_pp_gained
+        o.bots[i].atk_bonus += p.bots[i].count("Harvest")
+
+    return 1
+
+
+def roll_dmg(coins: int, coin_dmg: int):
     dmg = 0
     for i in range(coins):
         dmg += coin_dmg * cointoss()
-    dmg = max(0, dmg + attacker.atk_bonus - target.def_bonus)
-
-    target.hp -= dmg
-
-    for i in range(attacker.count("Scorch")):
-        o.bots[rolld4()].hp -= 1
-
-    if target.abilities.count("Whirlwind"):
-        attacker.stunned = True
-
-    if show:
-        print(p.name, " did ", dmg, " damage to ", target.name, " using ", name)
-    return 1
+    return dmg
 
 
 def attack(p: Player, o: Player, i: int, name: str, show=False):
@@ -76,28 +80,28 @@ def attack(p: Player, o: Player, i: int, name: str, show=False):
 
     match name:
         case "Shunt":
-            return basic_attack(p, o, attacker, target, 1, 1, "Shunt", show)
+            return basic_attack(p, o, i, 1, 1, "Shunt", show)
 
         case "Shock":
-            return basic_attack(p, o, attacker, target, 2, 3, "Shock", show)
+            return basic_attack(p, o, i, 2, 3, "Shock", show)
 
         case "Energy Beam":
-            return basic_attack(p, o, attacker, target, 3, 5, "Energy Beam", show)
+            return basic_attack(p, o, i, 3, 5, "Energy Beam", show)
 
         case "Giga Blast":
-            return basic_attack(p, o, attacker, target, 4, 7, "Giga Blast", show)
+            return basic_attack(p, o, i, 4, 7, "Giga Blast", show)
 
         case "Double Jab":
-            return roll_attack(p, o, attacker, target, 1, 2, 1, "Double Jab", show)
+            return basic_attack(p, o, i, 1, roll_dmg(2, 1), "Double Jab", show)
 
         case "Triple Tap":
-            return roll_attack(p, o, attacker, target, 2, 3, 2, "Triple Tap", show)
+            return basic_attack(p, o, i, 2, roll_dmg(3, 1), "Triple Tap", show)
 
         case "Bullet Blitz":
-            return roll_attack(p, o, attacker, target, 3, 5, 2, "Bullet Blitz", show)
+            return basic_attack(p, o, i, 3, roll_dmg(5, 2), "Bullet Blitz", show)
 
         case "Multi Missile":
-            return roll_attack(p, o, attacker, target, 4, 5, 3, "Multi Missile", show)
+            return basic_attack(p, o, i, 4, roll_dmg(5, 3), "Multi Missile", show)
 
         case "Cure Wounds":
             p.pp -= 1

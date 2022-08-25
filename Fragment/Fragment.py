@@ -1,10 +1,11 @@
-import pandas as pd
+import panpdas as pd
 import numpy as np
 import abilities as ab
 
 from card import *
 from player import Player
 from playerActions import *
+from aiActions import *
 from random import randint, shuffle
 from resourcesHandler import ResourceHandler
 from tabulate import tabulate
@@ -13,7 +14,7 @@ import datetime
 
 # TODO: Refactor code and import modules
 
-types = ["Acquire", "Augment", "Consume", "Convert", "Cultivate", "Preserve"]
+types = ["Acquire", "Augment", "Consume", "Convert", "Cultivate", "Preserve", "Tinker"]
 resource_types = ["Biomass", "Power Cell", "Fossil Fuel", "Radioactive Material", "Weather Event"]
 pp_per_turn = 3
 num_resources = 6
@@ -32,7 +33,41 @@ pp_gained = 2
 special_pp_gained = 1
 
 
+def choose_deck(deck_user: str):
+    while True:
+        player_type_num = input("Choose a deck for " + deck_user + "!"
+                                "\n[1] Acquire"
+                                "\n[2] Augment"
+                                "\n[3] Consume"
+                                "\n[4] Convert"
+                                "\n[5] Cultivate"
+                                "\n[6] Preserve"
+                                "\n[7] Tinker"
+                                "\n[8] Show Details"
+                                "\n[9] Exit")
+        if not (["1", "2", "3", "4", "5", "6", "7", "8", "9"].count(player_type_num) > 0):
+            print("Not an available option!")
+            continue
+        if player_type_num in ["1", "2", "3", "4", "5", "6", "7"]:
+            player_type = types[int(player_type_num) - 1]
+            break
+        if player_type_num == "8":
+            print("Acquire: Steal opponents' PP."
+                  "\nAugment: Gain PP from attached parts."
+                  "\nConsume: Burn resources for a quick PP gain."
+                  "\nConvert: Gain PP from all weather events."
+                  "\nCultivate: Gain PP from all friendly bots."
+                  "\nPreserve: Gain extra PP from Power Cells."
+                  "\nTinker: Gain a small amount of PP from all resources.")
+        if player_type_num == "9":
+            return None
+    return player_type
+
+
 def init_decks():
+    player_type = types[randint(0, 5)]
+    opponent_type = types[randint(0, 5)]
+
     while True:
         player_game_style = input(
             "How do you want to play?\n[1] Against an AI\n[2] Against myself\n[3] Watch the AI play")
@@ -42,88 +77,17 @@ def init_decks():
         break
 
     if player_game_style == "1":
-        while True:
-            player_type_num = input("Choose a deck!"
-                                    "\n[1] Acquire"
-                                    "\n[2] Augment"
-                                    "\n[3] Consume"
-                                    "\n[4] Convert"
-                                    "\n[5] Cultivate"
-                                    "\n[6] Preserve"
-                                    "\n[7] Show Details"
-                                    "\n[8] Exit")
-            if not (["1", "2", "3", "4", "5", "6", "7", "8"].count(player_type_num) > 0):
-                print("Not an available option!")
-                continue
-            if player_type_num in ["1", "2", "3", "4", "5", "6"]:
-                player_type = types[int(player_type_num) - 1]
-                break
-            if player_type_num == "7":
-                print("Acquire: Steal opponents' PP and HP."
-                      "\nAugment: Gain PP from attached parts."
-                      "\nConsume: Burn resources for a quick PP gain."
-                      "\nConvert: Gain PP from all weather events."
-                      "\nCultivate: Gain PP from all friendly bots."
-                      "\nPreserve: Spend AP to charge bots.")
-            if player_type_num == "8":
-                return None, None, None
-        opponent_type = types[randint(0, 5)]
+        player_type = choose_deck("you")
+        if player_type is None:
+            return None, None, None, None
 
     if player_game_style == "2":
-        while True:
-            player_type_num = input("Choose a deck!"
-                                    "\n[1] Acquire"
-                                    "\n[2] Augment"
-                                    "\n[3] Consume"
-                                    "\n[4] Convert"
-                                    "\n[5] Cultivate"
-                                    "\n[6] Preserve"
-                                    "\n[7] Show Details"
-                                    "\n[8] Exit")
-            if not (["1", "2", "3", "4", "5", "6", "7", "8"].count(player_type_num) > 0):
-                print("Not an available option!")
-                continue
-            if player_type_num in ["1", "2", "3", "4", "5", "6"]:
-                player_type = types[int(player_type_num) - 1]
-                break
-            if player_type_num == "7":
-                print("Acquire: Steal opponents' PP and HP."
-                      "\nAugment: Gain PP from attached parts."
-                      "\nConsume: Burn resources for a quick PP gain."
-                      "\nConvert: Gain PP from all weather events."
-                      "\nCultivate: Gain PP from all friendly bots."
-                      "\nPreserve: Spend AP to charge bots.")
-            if player_type_num == "8":
-                return None, None, None
-        while True:
-            opponent_type_num = input("Choose a deck for your opponent!"
-                                      "\n[1] Acquire"
-                                      "\n[2] Augment"
-                                      "\n[3] Consume"
-                                      "\n[4] Convert"
-                                      "\n[5] Cultivate"
-                                      "\n[6] Preserve"
-                                      "\n[7] Show Details"
-                                      "\n[8] Exit")
-            if not (["1", "2", "3", "4", "5", "6", "7", "8"].count(opponent_type_num) > 0):
-                print("Not an available option!")
-                continue
-            if opponent_type_num in ["1", "2", "3", "4", "5", "6"]:
-                opponent_type = types[int(opponent_type_num) - 1]
-                break
-            if opponent_type_num == "7":
-                print("Acquire: Steal opponents' PP and HP."
-                      "\nAugment: Gain PP from attached parts."
-                      "\nConsume: Burn resources for a quick PP gain."
-                      "\nConvert: Gain PP from all weather events."
-                      "\nCultivate: Gain PP from all friendly bots."
-                      "\nPreserve: Spend AP to charge bots.")
-            if opponent_type_num == "8":
-                return None, None, None
-
-    if player_game_style == "3":
-        player_type = types[randint(0, 5)]
-        opponent_type = types[randint(0, 5)]
+        player_type = choose_deck("you")
+        if player_type is None:
+            return None, None, None
+        opponent_type = choose_deck("your opponent")
+        if opponent_type is None:
+            return None, None, None, None
 
     player_deck = []
     opponent_deck = []
@@ -131,14 +95,14 @@ def init_decks():
     [generators, frames, parts] = prep_cards()
 
     for card in generators:
-        if card.type == player_type:
+        if card.deck == player_type:
             player_deck.extend(num_generators * list([card]))
-        if card.type == opponent_type:
+        if card.deck == opponent_type:
             opponent_deck.extend(num_generators * list([card]))
     for card in frames:
-        if card.type == player_type:
+        if card.deck == player_type:
             player_deck.extend(num_frames * list([card]))
-        if card.type == opponent_type:
+        if card.deck == opponent_type:
             opponent_deck.extend(num_frames * list([card]))
     for card in parts:
         player_deck.extend(num_parts * list([card]))
@@ -154,7 +118,19 @@ def init_decks():
 
     resource_handler = ResourceHandler()
 
-    return player, opponent, resource_handler, player_ai
+    while True:
+        show_num = input(
+            "How do you want to play?\n[1] Show descriptions\n[2] Hide descriptions")
+        if not (["1", "2"].count(player_game_style) > 0):
+            print("Not an available option!")
+            continue
+        break
+    if int(show_num) == 1:
+        show = True
+    else:
+        show = False
+
+    return player, opponent, resource_handler, show
 
 
 def init_game():
@@ -166,11 +142,11 @@ def init_game():
         player2.draw()
     turn = randint(0, 1)
     if turn == 0:
-        player1.pp = p1_start_ap
-        player2.pp = p2_start_ap
+        player1.pp = p1_start_pp
+        player2.pp = p2_start_pp
     else:
-        player1.pp = p2_start_ap
-        player2.pp = p1_start_ap
+        player1.pp = p2_start_pp
+        player2.pp = p1_start_pp
     winner = game_manager(turn, player1, player2, resource_handler, show)
     if winner == 1:
         print(player1.name + ' wins!!')
@@ -183,12 +159,12 @@ def init_game():
 def game_manager(turn, player1, player2, resource_handler, show=False):
     while player1.hp > 0 and player2.hp > 0:
         if turn == 0:
-            exit_status = take_turn2(player1, player2, resource_handler, show)
+            exit_status = take_turn(player1, player2, resource_handler, show)
             if exit_status == 0:
                 return 0
             turn = 1
         else:
-            exit_status = take_turn2(player2, player1, resource_handler, show)
+            exit_status = take_turn(player2, player1, resource_handler, show)
             if exit_status == 0:
                 return 0
             turn = 0
@@ -200,19 +176,17 @@ def game_manager(turn, player1, player2, resource_handler, show=False):
 
 def take_turn(player, opponent, resource_handler, show=False, log=[]):
     player.generate_pp(opponent, resource_handler, True)  # Generate PP for bots according to associated resources
-    player.ap += ap_per_turn  # Update AP
+    player.pp += pp_per_turn  # Update PP
     for i in range(hand_draw_size):
-        player.hand.append(player.deck.pop())  # Draw a card
+        draw(player, opponent, True, show)  # Draw a card
 
     output = 1
 
     if player.ai:
-        output = take_turn_ai2(player, opponent, resource_handler, show)
+        output = take_turn_ai(player, opponent, resource_handler, show)
+    else:
+        output = take_turn_player(player, opponent, resource_handler, show)
 
-    if not player.ai:
-        output = take_turn_player2(player, opponent, resource_handler)
-
-    player.attack(opponent, True)
     return output
 
 
@@ -232,9 +206,6 @@ def take_turn_ai(player, opponent, resource_handler, show=False):
                         possible_combos.append([card1, card2])
         if len(possible_combos) > 0:
             available_choices.append('Build a bot')
-            available_choices.append('Build a bot')
-            available_choices.append('Build a bot')
-            available_choices.append('Build a bot')
 
         possible_upgrades = []  # Check if a bot can be upgraded
         if card_count[2] > 0 and card_count[3] > 0:
@@ -243,22 +214,18 @@ def take_turn_ai(player, opponent, resource_handler, show=False):
                     possible_upgrades.append(card)
         if len(possible_upgrades) > 0:
             available_choices.append('Upgrade a bot')
-            available_choices.append('Upgrade a bot')
-            available_choices.append('Upgrade a bot')
 
         possible_swaps = []
-        good_resources = player.get_resource_types()
+        good_resources = player.resources
         for resource in resource_handler.pile:
             if resource not in good_resources:
                 possible_swaps.append(resource)
 
-        if player.ap >= resource_swap_cost and len(possible_swaps) > 0:
+        if player.pp >= resource_swap_cost and len(possible_swaps) > 0:
             available_choices.append('Swap a resource')
-            available_choices.append('Swap a resource')
-        if player.ap >= resource_refresh_cost and len(possible_swaps) == 4:
+        if player.pp >= resource_refresh_cost and len(possible_swaps) == 4:
             available_choices.append('Refresh all resources')
-        if player.ap >= draw_cost:
-            available_choices.append('Draw a card')
+        if player.pp >= draw_cost:
             available_choices.append('Draw a card')
         # if player.ap >= ability_cost: # to add later
         available_choices.append('End Turn')
@@ -267,15 +234,15 @@ def take_turn_ai(player, opponent, resource_handler, show=False):
         choice = available_choices[num_choice]
 
         if choice == 'Build a bot':
-            bot_built = player.ai_build(possible_combos, show)
+            bot_built = ai_build(player, opponent, possible_combos, show)
         elif choice == 'Upgrade a bot':
             [bot_upgraded, part_upgraded] = player.ai_upgrade(possible_upgrades, show)
         elif choice == 'Swap a resource':
             [resource_position, old_resource, new_resource] = player.ai_swap_resource(resource_handler, show)
         elif choice == 'Refresh all resources':
-            player.refresh_resources(resource_handler, show)
+            refresh_resources(player, opponent, resource_handler, show)
         elif choice == 'Draw a card':
-            card_drawn = player.draw(show)
+            card_drawn = draw(player, opponent, False, show)
         elif choice == 'End Turn':
             if show:
                 print(player.name + ' ends their turn.')
@@ -283,10 +250,17 @@ def take_turn_ai(player, opponent, resource_handler, show=False):
     return 1
 
 
-def take_turn_player(player, opponent, resource_handler):
+def take_turn_player(player, opponent, resource_handler, show=False):
     while True:  # Iterate through choices available during turn
         display_field(player, opponent, resource_handler)
         available_choices = []  # Used to track choices available to the player
+
+        # See if an action is possible
+        for bot in player.bots:
+            if not bot.isblank():
+                available_choices.append('Take action')
+                break
+
         card_count = player.count_cards()
         if card_count[0] > 0:
             available_choices.append('Build a bot')
@@ -294,11 +268,11 @@ def take_turn_player(player, opponent, resource_handler):
             available_choices.append('Power a bot')
         if card_count[2] > 0 and card_count[3] > 0:
             available_choices.append('Upgrade a bot')
-        if player.ap >= resource_swap_cost:
+        if player.pp >= resource_swap_cost:
             available_choices.append('Swap a resource')
-        if player.ap >= resource_refresh_cost:
+        if player.pp >= resource_refresh_cost:
             available_choices.append('Refresh all resources')
-        if player.ap >= draw_cost:
+        if player.pp >= draw_cost:
             available_choices.append('Draw a card')
         # if player.ap >= ability_cost: # to add later
         available_choices.append('End Turn')
@@ -318,30 +292,34 @@ def take_turn_player(player, opponent, resource_handler):
 
         # choice = input('Select an action to take:\n[1] Build a bot\n[2] Upgrade a bot\n[3] Collect a resource\n'
         #                '[4] Refresh resources\n[5] End turn\n[6] Draw a card\n[7] Exit')
-        if choice == 'Build a bot':
-            player.build2()
-        elif choice == 'Power a bot':
-            player.power()
-        elif choice == 'Upgrade a bot':
-            player.upgrade()
-        elif choice == 'Swap a resource':
-            player.swap_resource(resource_handler)
-        elif choice == 'Refresh all resources':
-            player.refresh_resources(resource_handler)
-        elif choice == 'Draw a card':
-            player.draw()
-        elif choice == 'End Turn':
-            break
-        elif choice == 'Exit Game':
-            return 0
+        match "choice":
+            case 'Take action':
+                take_action(player, opponent, resource_handler, show)
+            case 'Build a bot':
+                build(player, opponent, show)
+            case 'Power a bot':
+                power(player, opponent, show)
+            case 'Upgrade a bot':
+                upgrade(player, opponent, show)
+            case 'Swap a resource':
+                swap_resource(player, opponent, resource_handler, show)
+            case 'Refresh all resources':
+                refresh_resources(player, opponent, resource_handler, show)
+            case 'Draw a card':
+                draw(player, opponent, show)
+            case 'End Turn':
+                break
+            case 'Exit Game':
+                return 0
     return 1
 
 
+# TODO: get csv files and integrate them
 def prep_cards():
     # abilities = pd.read_csv('Fragment 1.0 CSV Files/Abilities.csv')
-    frames = pd.read_csv('Fragment 1.0 CSV Files/Frames.csv')
-    generators = pd.read_csv('Fragment 1.0 CSV Files/Generators.csv')
-    parts = pd.read_csv('Fragment 1.0 CSV Files/Parts.csv')
+    frames = pd.read_csv('../CSV Files/Frames.csv')
+    generators = pd.read_csv('../CSV Files/Generators.csv')
+    parts = pd.read_csv('../CSV Files/Parts.csv')
 
     frame_list = []
     for index, row in frames.iterrows():
@@ -543,6 +521,6 @@ if __name__ == '__main__':
     print("Lets Play!")
     start = input('[T]est or [P]lay?')
     if start == 'p' or start == 'P':
-        init_game2()
+        init_game()
     elif start == 't' or start == 'T':
         init_test()

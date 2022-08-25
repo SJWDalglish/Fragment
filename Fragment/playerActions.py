@@ -63,7 +63,7 @@ def select_bot_list(player: Player, select_text: str):
     return None
 
 
-def draw(p: Player, o: Player, show=False):
+def draw(p: Player, o: Player, free: bool, show=False):
     # Handle discount ability
     draw_discount = 0
     extra_cards = 0
@@ -87,7 +87,7 @@ def draw(p: Player, o: Player, show=False):
 
     # Resolve payment
     p.actions.append("Draw")
-    if draw_discount <= p.actions.count("Draw"):
+    if draw_discount <= p.actions.count("Draw") and not free:
         p.pp -= p.draw_cost
 
     return 1

@@ -1,23 +1,6 @@
 from player import Player
 
 
-class Ability:
-    def __init__(self, name: str, ability_type: str, cost: int, desc: str, dmg: int):
-        self.name = name
-        self.ability_type = ability_type
-        self.cost = cost
-        self.desc = desc
-
-    def display(self):
-        print("\n------\nAbility: ", self.name)
-        print("Type: ", self.ability_type)
-        if self.ability_type == "Active":
-            print("Cost: ", self.cost)
-            print("Damage: ", self.dmg)
-        print("Effect: " + self.desc)
-        print("------")
-
-
 def hp_ability(p: Player, o: Player, bot_num: int, name: str, show=False):
     if p.bots[bot_num].stunned:
         return 0
