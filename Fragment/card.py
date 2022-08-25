@@ -1,6 +1,8 @@
 # Card types
 types = ["Acquire", "Augment", "Consume", "Convert", "Cultivate", "Preserve"]
 resource_types = ["Biomass", "Power Cell", "Fossil Fuel", "Radioactive Material", "Weather Event"]
+max_parts = 2
+max_gens = 2
 
 
 class Card(object):
@@ -58,28 +60,45 @@ class Bot:
         self.abilities = []
         self.actions = [frame.action1, frame.action2]
         self.components = [frame]
+        self.num_gens = 0
+        self.num_parts = 0
         self.position = position
         self.stunned = False
         self.atk_bonus = 0
         self.def_bonus = 0
+        self.resources = []
 
     def power(self, gen: Generator):
+        if self.num_gens >= max_gens:
+            return 0
         self.abilities.append(gen.ability1)
-        if ability2 != "None":
+        if gen.ability2 != "None":
             self.abilities.append(gen.ability2)
         self.components.insert(0, gen)
         self.name = ""
         for comps in self.components:
             self.name += comps.name
-        # self.resources = ['Power Cell']
-        # if self.type == 'Augment':
-        #     self.resources.append('Radioactive Material')
-        # elif self.type == 'Consume':
-        #     self.resources.append('Fossil Fuel')
-        # elif self.type == "Convert":
-        #     self.resources.append('Weather Event')
-        # elif self.type == "Cultivate":
-        #     self.resources.append('Biomass')
+        self.num_gens += 1
+        self.atk_bonus += self.num_parts * gen.abilities.count("Mutate")
+        match gen.resource:
+            case 'Acquire':
+                self.resources.extend(['Power Cell', 'Power Cell'])
+            case 'Augment':
+                self.resources.extend(['Power Cell', 'Power Cell'])
+                self.resources.extend(['Radioactive Material', 'Radioactive Material'])
+            case 'Consume':
+                self.resources.extend(['Power Cell', 'Power Cell'])
+                self.resources.extend(['Fossil Fuel', 'Fossil Fuel'])
+            case "Convert":
+                self.resources.extend(['Power Cell', 'Power Cell'])
+                self.resources.extend(['Weather Event', 'Weather Event'])
+            case "Cultivate":
+                self.resources.extend(['Power Cell', 'Power Cell'])
+                self.resources.extend(['Biomass', 'Biomass'])
+            case "Preserve":
+                self.resources.extend(['Power Cell', 'Power Cell', 'Power Cell'])
+            case "Tinker":
+                self.resources.extend(resource_types)
 
     def display_name(self):
         print(self.name)
@@ -104,14 +123,18 @@ class Bot:
         self.current_hp -= dmg
 
     def upgrade(self, part: Part):
+        if self.num_parts >= max_parts:
+            return 0
         num_components = len(self.components)
         self.components.insert(num_components - 1, part)
         self.name = ""
         for comps in self.components:
             self.name += comps.name
+        self.num_parts += 1
         self.max_hp += part.hp
         self.current_hp += part.hp
         self.actions.append(part.action1)
+        self.atk_bonus += self.abilities.count("Mutate")
 
     def stringify(self):
         return self.name + "\nHP: " + str(self.current_hp) + "/" + str(self.max_hp)

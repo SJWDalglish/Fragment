@@ -13,6 +13,11 @@ _resource_swap_cost = 1
 _refresh_cost = 2
 _move_cost = 1
 
+# Ability values
+_default_pp_gained = 2
+_default_hp_gained = 2
+_special_pp_gained = 1
+
 
 class Player:
 
@@ -31,6 +36,9 @@ class Player:
         self.resource_swap_cost = _resource_swap_cost
         self.refresh_cost = _refresh_cost
         self.move_cost = _move_cost
+        self.default_pp_gained = _default_pp_gained
+        self.default_hp_gained = _default_hp_gained
+        self.special_pp_gained = _special_pp_gained
         self.actions = []
         self.def_bonus = 0
 
@@ -107,9 +115,11 @@ class Player:
             self.pp) + ' | Cards: ' + str(len(self.hand)))
 
     # TODO: Refactor abilities to integrate this code
-    def gen_pp(self, bot_num: int, pp_gain: int):
-        if self.bots[i].stunned:
+    def gen_pp(self, bot_num: int, pp_gain: int, source: str, show=False):
+        if self.bots[bot_num].stunned:
             return 0
         self.pp += pp_gain
+        if show:
+            print(self.name, "'s bot ", self.bots[bot_num].name, ' generated ', pp_gain, 'PP using ', source)
         return 1
 

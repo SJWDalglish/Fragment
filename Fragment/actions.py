@@ -29,24 +29,39 @@ def rolld4():
     return random.randint(1,4)
 
 
-def basic_attack(p: Player, attacker, target, cost: int, dmg: int, name:str, show=False):
+def basic_attack(p: Player, o: Player, attacker, target, cost: int, dmg: int, name:str, show=False):
     p.pp -= cost
+
     dmg = max(0, dmg + attacker.atk_bonus - target.def_bonus)
+
     target.hp -= dmg
-    attacker.atk_bonus = 0
-    target.def_bonus = 0
+
+    for i in range(attacker.count("Scorch")):
+        o.bots[rolld4()].hp -= 1
+
+    if target.abilities.count("Whirlwind"):
+        attacker.stunned = True
 
     if show:
         print(p.name, " did ", dmg, " damage to ", target.name, " using ", name)
     return 1
 
 
-def roll_attack(p: Player, attacker, target, cost: int, coins: int, coin_dmg: int, name: str, show=False):
+def roll_attack(p: Player, o: Player, attacker, target, cost: int, coins: int, coin_dmg: int, name: str, show=False):
     p.pp -= cost
-    dmg = max(0, attacker.atk_bonus - target.def_bonus)
+
+    dmg = 0
     for i in range(coins):
         dmg += coin_dmg * cointoss()
+    dmg = max(0, dmg + attacker.atk_bonus - target.def_bonus)
+
     target.hp -= dmg
+
+    for i in range(attacker.count("Scorch")):
+        o.bots[rolld4()].hp -= 1
+
+    if target.abilities.count("Whirlwind"):
+        attacker.stunned = True
 
     if show:
         print(p.name, " did ", dmg, " damage to ", target.name, " using ", name)
@@ -61,28 +76,28 @@ def attack(p: Player, o: Player, i: int, name: str, show=False):
 
     match name:
         case "Shunt":
-            return basic_attack(p, attacker, target, 1, 1, "Shunt", show)
+            return basic_attack(p, o, attacker, target, 1, 1, "Shunt", show)
 
         case "Shock":
-            return basic_attack(p, attacker, target, 2, 3, "Shock", show)
+            return basic_attack(p, o, attacker, target, 2, 3, "Shock", show)
 
         case "Energy Beam":
-            return basic_attack(p, attacker, target, 3, 5, "Energy Beam", show)
+            return basic_attack(p, o, attacker, target, 3, 5, "Energy Beam", show)
 
         case "Giga Blast":
-            return basic_attack(p, attacker, target, 4, 7, "Giga Blast", show)
+            return basic_attack(p, o, attacker, target, 4, 7, "Giga Blast", show)
 
         case "Double Jab":
-            return roll_attack(p, attacker, target, 1, 2, 1, "Double Jab", show)
+            return roll_attack(p, o, attacker, target, 1, 2, 1, "Double Jab", show)
 
         case "Triple Tap":
-            return roll_attack(p, attacker, target, 2, 3, 2, "Triple Tap", show)
+            return roll_attack(p, o, attacker, target, 2, 3, 2, "Triple Tap", show)
 
         case "Bullet Blitz":
-            return roll_attack(p, attacker, target, 3, 5, 2, "Bullet Blitz", show)
+            return roll_attack(p, o, attacker, target, 3, 5, 2, "Bullet Blitz", show)
 
         case "Multi Missile":
-            return roll_attack(p, attacker, target, 4, 5, 3, "Multi Missile", show)
+            return roll_attack(p, o, attacker, target, 4, 5, 3, "Multi Missile", show)
 
         case "Cure Wounds":
             p.pp -= 1

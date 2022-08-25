@@ -338,9 +338,9 @@ def refresh_resources(player: Player, opp: Player, rh: ResourceHandler, show=Fal
     for i in range(4):
         rh.pile[i] = rh.deck.pop()
     if swap_discount <= player.actions.count("Swap"):
-        player.pp -= 2 * resource_swap_cost
+        player.pp -= 2 * player.resource_swap_cost
     else:
-        player.pp -= resource_swap_cost
+        player.pp -= player.resource_swap_cost
 
     # Log action
     if show:
@@ -349,7 +349,6 @@ def refresh_resources(player: Player, opp: Player, rh: ResourceHandler, show=Fal
     return 1
 
 
-# TODO: All o this
 def select_attack_list(p: Player, bot_num: int, select_text: str, show=False):
     p.bots[bot_num].display_actions()
     while True:
@@ -380,58 +379,38 @@ def take_action(p: Player, o: Player, rh: ResourceHandler, show=False):
 
 
 # TODO: Refactor and update
-def generate_pp(player, opponent, resource_handler, show=False):
+def generate_pp(p: Player, o: Player, rh: ResourceHandler, show=False):
+    pp_gained = p.default_pp_gained
+    special_pp_gained = p.special_pp_gained
+
     for i in range(4):
-        bot = player.bots[i]
+        bot = p.bots[i]
         if bot.isblank():
             continue
 
         # Gain PP from adjacent resource
-        if bot.resources.count(resource_handler.pile[i]) > 0:
-            player.pp += pp_gained
-            if show:
-                print(player.name + "'s bot " + player.bots[i].name + ' regained ' + str(
-                    pp_gained) + 'pp using adjacent resource.')
-            if opponent.bots[i].abilities.count("Reallocate") > 0:
-                opponent.pp += special_pp_gained
-                if show:
-                    print(opponent.name + "'s bot " + opponent.bots[i].name + ' syphoned ' + str(
-                        special_pp_gained) + 'pp from opposing bot.')
+        p.gen_pp(bot_num=i, pp_gain=pp_gained, source=bot.resources.count(rh.pile[i]), show=show)
+        o.gen_pp(i, o.bots[i].abilities.count("Acquire") * special_pp_gained, "Acquire", show)
 
         # PP from Radiate
-        if bot.abilities.count('Radiate') > 0:
-            player.pp += special_pp_gained * (len(bot.components) - 2)
-            if show:
-                print(player.name + "'s bot " + player.bots[i].name + ' regained ' + str(
-                    special_pp_gained * (len(bot.components) - 2)) + 'pp using repurposed hardware.')
-            if opponent.bots[i].abilities.count("Reallocate") > 0:
-                opponent.pp += special_pp_gained
-                if show:
-                    print(opponent.name + "'s bot " + opponent.bots[i].name + ' syphoned ' + str(
-                        special_pp_gained) + 'pp from opposing bot.')
+        if bot.abilities.count("Radiate") > 0:
+            p.gen_pp(i, bot.abilities.count("Radiate") * special_pp_gained, "Radiate", show)
+            o.gen_pp(i, o.bots[i].abilities.count("Acquire") * special_pp_gained, "Acquire", show)
 
         # PP from Storm Drain
-        if bot.abilities.count('Storm Drain') > 0:
+        if bot.abilities.count("Storm Drain") > 0:
+            pp_gain = 0
             for j in range(4):
-                if (j != i) and (resource_handler.pile[j] == 'Weather Event'):
-                    self.pp += special_pp_gained
-                    if show:
-                        print(self.name + "'s bot " + self.bots[i].name + ' regained ' + str(
-                            special_pp_gained) + 'pp due to inclement weather.')
-                    if opponent.bots[i].abilities.count("Reallocate") > 0:
-                        opponent.pp += special_pp_gained
-                        if show:
-                            print(opponent.name + "'s bot " + opponent.bots[i].name + ' syphoned ' + str(
-                                special_pp_gained) + 'pp from opposing bot.')
-        if bot.type == 'Cultivate':
+                if (j != i) and (rh.pile[j] == 'Weather Event'):
+                    pp_gain += special_pp_gained
+            p.gen_pp(i, bot.abilities.count("Storm Drain") * pp_gain, "Storm Drain", show)
+            o.gen_pp(i, o.bots[i].abilities.count("Acquire") * special_pp_gained, "Acquire", show)
+
+        # PP from Pack
+        if bot.abilities.count("Pack") > 0:
+            pp_gain = 0
             for j in range(4):
-                if (j != i) and (self.bots[j].type == 'Cultivate'):
-                    self.bots[i].pp += special_pp_gained
-                    if show:
-                        print(self.name + "'s bot " + self.bots[i].name + ' regained ' + str(
-                            special_pp_gained) + 'pp due to a thriving ecosystem.')
-                    if opponent.bots[i].type == "Acquire":
-                        opponent.bots[i].pp += special_pp_gained
-                        if show:
-                            print(opponent.name + "'s bot " + opponent.bots[i].name + ' syphoned ' + str(
-                                special_pp_gained) + 'pp from opposing bot.')
+                if (j != i) and (not p.bots[j].isblank()):
+                    pp_gain += special_pp_gained
+            p.gen_pp(i, bot.abilities.count("Pack") * pp_gain, "Pack", show)
+            o.gen_pp(i, o.bots[i].abilities.count("Acquire") * special_pp_gained, "Acquire", show)
