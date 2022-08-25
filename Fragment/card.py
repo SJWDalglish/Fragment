@@ -60,6 +60,8 @@ class Bot:
         self.components = [frame]
         self.position = position
         self.stunned = False
+        self.atk_bonus = 0
+        self.def_bonus = 0
 
     def power(self, gen: Generator):
         self.abilities.append(gen.ability1)

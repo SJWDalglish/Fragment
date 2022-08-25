@@ -1,5 +1,7 @@
 import random
 import abilities as ab
+from card import Bot
+from player import Player
 
 
 class Action:
@@ -27,55 +29,60 @@ def rolld4():
     return random.randint(1,4)
 
 
+def basic_attack(p: Player, attacker, target, cost: int, dmg: int, name:str, show=False):
+    p.pp -= cost
+    dmg = max(0, dmg + attacker.atk_bonus - target.def_bonus)
+    target.hp -= dmg
+    attacker.atk_bonus = 0
+    target.def_bonus = 0
+
+    if show:
+        print(p.name, " did ", dmg, " damage to ", target.name, " using ", name)
+    return 1
+
+
+def roll_attack(p: Player, attacker, target, cost: int, coins: int, coin_dmg: int, name: str, show=False):
+    p.pp -= cost
+    dmg = max(0, attacker.atk_bonus - target.def_bonus)
+    for i in range(coins):
+        dmg += coin_dmg * cointoss()
+    target.hp -= dmg
+
+    if show:
+        print(p.name, " did ", dmg, " damage to ", target.name, " using ", name)
+    return 1
+
+
 def attack(p: Player, o: Player, i: int, name: str, show=False):
+    attacker = p.bots[i]
     target = o.bots[i]
     if target.isBlank():
         target = o
 
     match name:
         case "Shunt":
-            p.pp -= 1
-            target.hp -= 1
-            return 1
+            return basic_attack(p, attacker, target, 1, 1, "Shunt", show)
 
         case "Shock":
-            p.pp -= 2
-            target.hp -= 3
-            return 1
+            return basic_attack(p, attacker, target, 2, 3, "Shock", show)
 
         case "Energy Beam":
-            p.pp -= 3
-            target.hp -= 5
-            return 1
+            return basic_attack(p, attacker, target, 3, 5, "Energy Beam", show)
 
         case "Giga Blast":
-            p.pp -= 4
-            target.hp -= 7
-            return 1
+            return basic_attack(p, attacker, target, 4, 7, "Giga Blast", show)
 
         case "Double Jab":
-            p.pp -= 1
-            for j in range(2):
-                target.hp -= cointoss()
-            return 1
+            return roll_attack(p, attacker, target, 1, 2, 1, "Double Jab", show)
 
         case "Triple Tap":
-            p.pp -= 2
-            for j in range(3):
-                target.hp -= 2 * cointoss()
-            return 1
+            return roll_attack(p, attacker, target, 2, 3, 2, "Triple Tap", show)
 
         case "Bullet Blitz":
-            p.pp -= 3
-            for j in range(5):
-                target.hp -= 2 * cointoss()
-            return 1
+            return roll_attack(p, attacker, target, 3, 5, 2, "Bullet Blitz", show)
 
         case "Multi Missile":
-            p.pp -= 4
-            for j in range(5):
-                target.hp -= 3 * cointoss()
-            return 1
+            return roll_attack(p, attacker, target, 4, 5, 3, "Multi Missile", show)
 
         case "Cure Wounds":
             p.pp -= 1
@@ -88,8 +95,8 @@ def attack(p: Player, o: Player, i: int, name: str, show=False):
             for j in range(n):
                 card = p.deck.pop()
                 p.hand.append(card)
-                ab.hp_ability(p,o,i,"Disruption")
-                ab.pp_ability(o,i,"Sync")
+                ab.hp_ability(p, o, i, "Disruption")
+                ab.pp_ability(o, i, "Sync")
             return 1
 
         case "Fireball":
@@ -106,10 +113,16 @@ def attack(p: Player, o: Player, i: int, name: str, show=False):
             return 1
 
         case "Deplete":
-            return 0
+            p.pp -= 1
+            n = rolld4()
+            p.bots[i].atk_bonus += n
+            return 1
 
         case "Barrier":
-            return 0
+            p.pp -= 1
+            n = rolld4()
+            p.bots[n].def_bonus = 1000
+            return 1
 
         case "Plan":
             return 0

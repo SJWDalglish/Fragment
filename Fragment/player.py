@@ -5,16 +5,16 @@ from resourcesHandler import *
 import abilities as ab
 
 blank_bot = Bot(Frame("Bot", "None", 0, 0, "None", "None", "None"))
+# Action costs
+_start_pp = 0
+_start_hp = 20
+_draw_cost = 1
+_resource_swap_cost = 1
+_refresh_cost = 2
+_move_cost = 1
 
 
 class Player:
-    # Action costs
-    _start_pp = 0
-    _start_hp = 20
-    _draw_cost = 1
-    _resource_swap_cost = 1
-    _refresh_cost = 2
-    _move_cost = 1
 
     def __init__(self, name: str, resource: str, deck, ai=False, strategy=[1, 1, 1, 1, 1, 1]):
         self.name = name
@@ -32,6 +32,7 @@ class Player:
         self.refresh_cost = _refresh_cost
         self.move_cost = _move_cost
         self.actions = []
+        self.def_bonus = 0
 
     def get_resource_types(self):
         output = ['Power Cell']

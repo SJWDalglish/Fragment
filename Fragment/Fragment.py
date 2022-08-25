@@ -39,8 +39,7 @@ def init_decks():
         if not (["1", "2", "3"].count(player_game_style) > 0):
             print("Not an available option!")
             continue
-        if player_game_style in ["1", "2", "3"]:
-            break
+        break
 
     if player_game_style == "1":
         while True:
@@ -167,11 +166,11 @@ def init_game():
         player2.draw()
     turn = randint(0, 1)
     if turn == 0:
-        player1.ap = p1_start_ap
-        player2.ap = p2_start_ap
+        player1.pp = p1_start_ap
+        player2.pp = p2_start_ap
     else:
-        player1.ap = p2_start_ap
-        player2.ap = p1_start_ap
+        player1.pp = p2_start_ap
+        player2.pp = p1_start_ap
     winner = game_manager(turn, player1, player2, resource_handler, show)
     if winner == 1:
         print(player1.name + ' wins!!')

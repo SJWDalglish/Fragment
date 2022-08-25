@@ -2,6 +2,7 @@ from tabulate import tabulate
 from random import randint, shuffle
 from player import Player
 from card import *
+from actions import attack
 from resourcesHandler import ResourceHandler
 import abilities as ab
 
@@ -349,8 +350,33 @@ def refresh_resources(player: Player, opp: Player, rh: ResourceHandler, show=Fal
 
 
 # TODO: All o this
-def attack(p: Player, o: Player, rh: ResourceHandler, show=False):
-    return 0
+def select_attack_list(p: Player, bot_num: int, select_text: str, show=False):
+    p.bots[bot_num].display_actions()
+    while True:
+        num_selected = input(select_text + 'or press [x] to cancel.')
+        if num_selected == 'x':
+            return None
+        elif not num_selected.isdecimal():
+            print('Not a valid input.')
+            continue
+        elif int(num_selected) in [x + 1 for x in list(range(len(p.bots[bot_num].actions)))]:
+            return num_selected
+        print('Not a valid input.')
+        continue
+    return None
+
+
+def take_action(p: Player, o: Player, rh: ResourceHandler, show=False):
+    n = select_bot_list(p, "Select bot to attack with ")
+    if n is None:
+        return 0
+
+    m = select_attack_list(p, int(n), "Select an action to take ", show)
+    if n is None:
+        return 0
+
+    attack(p, o, int(n), p.bots[n].actions[int(m)-1], show)
+    return 1
 
 
 # TODO: Refactor and update
