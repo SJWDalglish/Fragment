@@ -27,8 +27,15 @@ class Card(object):
         print("------")
 
     def listify(self, discount=0):
-        return [self.name, type(self).__name__, str(min(0, self.cost - discount)) + "PP", str(self.hp) + "HP", self.ability1,
-                self.ability2]
+        a1 = self.ability1
+        a2 = self.ability2
+        if a1 == "None":
+            a1 = self.action1
+        if a2 == "None":
+            a2 = self.action2
+
+        return [self.name, type(self).__name__, str(int(max(0, self.cost - discount))) + "PP", str(int(self.hp)) + "HP", a1,
+                a2]
 
 
 class Generator(Card):
@@ -53,7 +60,7 @@ class Mechanic(Card):
 
 class Bot:
     def __init__(self, frame: Frame, position=None):
-        self.name = frame.name
+        self.name = "Robo" + frame.name
         self.type = None
         self.current_hp = frame.hp
         self.max_hp = frame.hp
@@ -143,7 +150,7 @@ class Bot:
         return self.name + "\nHP: " + str(self.current_hp) + "/" + str(self.max_hp)
 
     def isblank(self):
-        if self.name == 'BlankBot':
+        if self.name == 'RoboBot':
             return True
         return False
 

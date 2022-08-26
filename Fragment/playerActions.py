@@ -397,7 +397,7 @@ def generate_pp(p: Player, o: Player, rh: ResourceHandler, show=False):
             continue
 
         # Gain PP from adjacent resource
-        p.gen_pp(bot_num=i, pp_gain=pp_gained, source=bot.resources.count(rh.pile[i]), show=show)
+        p.gen_pp(bot_num=i, pp_gain=bot.resources.count(rh.pile[i]), source=rh.pile[i], show=show)
         o.gen_pp(i, o.bots[i].abilities.count("Acquire") * special_pp_gained, "Acquire", show)
 
         # PP from Radiate

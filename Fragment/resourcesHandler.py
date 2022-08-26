@@ -6,9 +6,9 @@ num_resources = 6
 class ResourceHandler:
     def __init__(self):
         self.deck = []
-        for resource in resource_types:
-            for i in range(num_resources):
-                self.deck.append(resource)
+        for i in range(num_resources):
+            self.deck.extend(resource_types)
+            self.deck.append("Power Cell")
         shuffle(self.deck)
         self.pile = self.deck[:4]
         del self.deck[:4]

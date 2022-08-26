@@ -3,48 +3,48 @@ rect,Acquire,3,8,,Incentivize,Shunt
 ply,Acquire,3,8,,Incentivize,Shock
 nacht,Acquire,3,8,,Incentivize,Energy Beam
 nyx,Acquire,3,8,,Incentivize,Giga Blast
-klum,Acquire,3,8,,Incentivize,Double jab
-fel,Acquire,3,8,,Incentivize,Triple tap
+klum,Acquire,3,8,,Incentivize,Double Jab
+fel,Acquire,3,8,,Incentivize,Triple Tap
 myth,Acquire,3,8,,Incentivize,Bullet Blitz
 more,Acquire,3,8,,Incentivize,Multi Missile
 neon,Augment,3,8,,Deplete,Shunt
 bium,Augment,3,8,,Deplete,Shock
 zine,Augment,3,8,,Deplete,Energy Beam
 lium,Augment,3,8,,Deplete,Giga Blast
-nite,Augment,3,8,,Deplete,Double jab
-theum,Augment,3,8,,Deplete,Triple tap
+nite,Augment,3,8,,Deplete,Double Jab
+theum,Augment,3,8,,Deplete,Triple Tap
 zone,Augment,3,8,,Deplete,Bullet Blitz
 line,Augment,3,8,,Deplete,Multi Missile
 ton,Consume,3,8,,Fireball,Shunt
 lus,Consume,3,8,,Fireball,Shock
 don,Consume,3,8,,Fireball,Energy Beam
 kar,Consume,3,8,,Fireball,Giga Blast
-gon,Consume,3,8,,Fireball,Double jab
-tus,Consume,3,8,,Fireball,Triple tap
+gon,Consume,3,8,,Fireball,Double Jab
+tus,Consume,3,8,,Fireball,Triple Tap
 bar,Consume,3,8,,Fireball,Bullet Blitz
 gul,Consume,3,8,,Fireball,Multi Missile
 mant,Convert,3,8,,Twister,Shunt
 tine,Convert,3,8,,Twister,Shock
 morph,Convert,3,8,,Twister,Energy Beam
 talus,Convert,3,8,,Twister,Giga Blast
-nax,Convert,3,8,,Twister,Double jab
-form,Convert,3,8,,Twister,Triple tap
+nax,Convert,3,8,,Twister,Double Jab
+form,Convert,3,8,,Twister,Triple Tap
 viz,Convert,3,8,,Twister,Bullet Blitz
 gar,Convert,3,8,,Twister,Multi Missile
 ling,Cultivate,3,8,,Cure Wounds,Shunt
 vore,Cultivate,3,8,,Cure Wounds,Shock
 phyte,Cultivate,3,8,,Cure Wounds,Energy Beam
 pod,Cultivate,3,8,,Cure Wounds,Giga Blast
-saurus,Cultivate,3,8,,Cure Wounds,Double jab
-ctos,Cultivate,3,8,,Cure Wounds,Triple tap
+saurus,Cultivate,3,8,,Cure Wounds,Double Jab
+ctos,Cultivate,3,8,,Cure Wounds,Triple Tap
 lophus,Cultivate,3,8,,Cure Wounds,Bullet Blitz
 clor,Cultivate,3,8,,Cure Wounds,Multi Missile
 bit,Preserve,3,8,,Barrier,Shunt
 byte,Preserve,3,8,,Barrier,Shock
 stega,Preserve,3,8,,Barrier,Energy Beam
 cell,Preserve,3,8,,Barrier,Giga Blast
-lite,Preserve,3,8,,Barrier,Double jab
-shell,Preserve,3,8,,Barrier,Triple tap
+lite,Preserve,3,8,,Barrier,Double Jab
+shell,Preserve,3,8,,Barrier,Triple Tap
 hull,Preserve,3,8,,Barrier,Bullet Blitz
 dome,Preserve,3,8,,Barrier,Multi Missile
 clunk,Tinker,3,8,,Plan,Shunt

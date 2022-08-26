@@ -4,7 +4,7 @@ from card import *
 from resourcesHandler import *
 import abilities as ab
 
-blank_bot = Bot(Frame("BlankBot", "None", 0, 0, "None", "None", "None"))
+blank_bot = Bot(Frame("Bot", "None", 0, 0, "None", "None", "None"))
 # Action costs
 _start_pp = 0
 _start_hp = 20
@@ -65,6 +65,7 @@ class Player:
 
     def show_hand(self, class_name=Card, discount=0):
         cards = []
+        headers = ["ID", "Name", "Type", "Cost", "HP", "Ability 1", "Ability 2"]
         card_list = []
         for card in self.hand:
             if isinstance(card, class_name):
@@ -72,7 +73,7 @@ class Player:
                 card_formatted.insert(0, str(len(card_list) + 1))
                 card_list.append(card_formatted)
                 cards.append(card)
-        print(tabulate(card_list))
+        print(tabulate(card_list, headers=headers))
         return cards
 
     def show_bots(self):
@@ -107,7 +108,7 @@ class Player:
         if self.bots[bot_num].stunned:
             return 0
         self.pp += pp_gain
-        if show:
+        if show and pp_gain > 0:
             print(self.name, "'s bot ", self.bots[bot_num].name, ' generated ', pp_gain, 'PP using ', source)
         return 1
 
