@@ -1,0 +1,48 @@
+﻿Name,Deck,Cost,HP,Desc,Ability 1,Ability 2
+Nocta,Acquire,1,2,,Acquire,
+Syna,Acquire,2,4,,Acquire,Sync
+Luna,Acquire,2,4,,Acquire,Circle Back
+Klepto,Acquire,2,4,,Acquire,Reallocate
+Corva,Acquire,2,4,,Acquire,Synergy
+Dextra,Acquire,2,4,,Acquire,Disruption
+Proto,Augment,1,2,,Augment,
+Nucle,Augment,2,4,,Augment,Mutate
+Radi,Augment,2,4,,Augment,Fusion
+Neo,Augment,2,4,,Augment,Radiate
+Pluto,Augment,2,4,,Augment,Research
+Xeno,Augment,2,4,,Augment,Fission
+Xanthra,Consume,1,2,,Consume,
+Chari,Consume,2,4,,Consume,Scorch
+Rexplo,Consume,2,4,,Consume,Tinder
+Pyro,Consume,2,4,,Consume,Burn
+Thurma,Consume,2,4,,Consume,Blaze
+Fira,Consume,2,4,,Consume,Frack
+Geo,Convert,1,2,,Convert,
+Vapo,Convert,2,4,,Convert,Lightning
+Sola,Convert,2,4,,Convert,Storm Drain
+Ventra,Convert,2,4,,Convert,Hurricane
+Helio,Convert,2,4,,Convert,Refraction
+Hydro,Convert,2,4,,Convert,Rain recollection
+Herba,Cultivate,1,2,,Cultivate,
+Flora,Cultivate,2,4,,Cultivate,Pollinate
+Fauna,Cultivate,2,4,,Cultivate,Leech
+Preda,Cultivate,2,4,,Cultivate,Hunger
+Cano,Cultivate,2,4,,Cultivate,Pack
+Carni,Cultivate,2,4,,Cultivate,Harvest
+Turta,Preserve,1,2,,Preserve,
+Concha,Preserve,2,4,,Preserve,Shield
+Mecha,Preserve,2,4,,Preserve,Recharge
+Techno,Preserve,2,4,,Preserve,Charge
+Cyclo,Preserve,2,4,,Preserve,Recycle
+Dyna,Preserve,2,4,,Preserve,Overcharge
+Spana,Tinker,1,2,,Tinker,
+Sporo,Tinker,2,4,,Tinker,Streamline
+Weldo,Tinker,2,4,,Tinker,Reinforce
+Pringu,Tinker,2,4,,Tinker,Repurpose
+Washo,Tinker,2,4,,Tinker,Spare Parts
+Clacku,Tinker,2,4,,Tinker,Rejig
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
