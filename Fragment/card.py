@@ -6,7 +6,7 @@ max_gens = 2
 
 
 class Card(object):
-    def __init__(self, name: str, deck: str, cost: int, hp: int, desc: str, ability1="None", ability2="None", action1="None", action2="None"):
+    def __init__(self, name: str, deck: str, cost: int, hp: int, desc: str, ability1:str, ability2: str, action1: str, action2: str):
         self.name = name
         self.cost = cost
         self.deck = deck
@@ -32,18 +32,18 @@ class Card(object):
 
 
 class Generator(Card):
-    def __init__(self, name: str, deck: str, cost: int, hp: int, desc: str, ability1: str):
-        super().__init__(name, deck, cost, hp, desc, ability1)
+    def __init__(self, name: str, deck: str, cost: int, hp: int, desc: str, ability1: str, ability2: str):
+        super().__init__(name, deck, cost, hp, desc, ability1, ability2, "None", "None")
 
 
 class Frame(Card):
     def __init__(self, name: str, deck: str, cost: int, hp: int, desc: str, action1: str, action2: str):
-        super().__init__(name, deck, cost, hp, desc, action1=action1, action2=action2)
+        super().__init__(name, deck, cost, hp, desc, "None", "None", action1, action2)
 
 
 class Part(Card):
     def __init__(self, name: str, cost: int, hp: int, desc: str, action: str):
-        super().__init__(name, "All", cost, hp, action1=action)
+        super().__init__(name, "All", cost, hp, desc, "None", "None", action, "None")
 
 
 class Mechanic(Card):
@@ -76,11 +76,14 @@ class Bot:
             self.abilities.append(gen.ability2)
         self.components.insert(0, gen)
         self.name = ""
+        self.current_hp += gen.hp
+        self.max_hp += gen.hp
         for comps in self.components:
             self.name += comps.name
         self.num_gens += 1
-        self.atk_bonus += self.num_parts * gen.abilities.count("Mutate")
-        match gen.resource:
+        if gen.ability2 == "Mutate":
+            self.atk_bonus += self.num_parts
+        match gen.ability1:
             case 'Acquire':
                 self.resources.extend(['Power Cell', 'Power Cell'])
             case 'Augment':

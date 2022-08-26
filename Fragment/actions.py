@@ -31,7 +31,7 @@ def basic_attack(p: Player, o: Player, i: int, cost: int, dmg: int, name: str, s
         if o.bots[i].hp <= 0:
             destroy_bot(o, p, i, show)
 
-    for j in range(p.bots[i].count("Scorch")):
+    for j in range(p.bots[i].abilities.count("Scorch")):
         t2 = rolld4()
         o.bots[t2].hp -= 1
         if show:
@@ -75,7 +75,7 @@ def roll_dmg(coins: int, coin_dmg: int):
 def attack(p: Player, o: Player, i: int, name: str, show=False):
     attacker = p.bots[i]
     target = o.bots[i]
-    if target.isBlank():
+    if target.isblank():
         target = o
 
     match name:
@@ -125,7 +125,7 @@ def attack(p: Player, o: Player, i: int, name: str, show=False):
 
         case "Twister":
             p.pp -= 1
-            j = rolld4()
+            j = rolld4() - 1
             tmp_bot = o.bots[i]
             o.bots[i] = o.bots[j]
             o.bots[j] = tmp_bot
@@ -139,7 +139,7 @@ def attack(p: Player, o: Player, i: int, name: str, show=False):
 
         case "Barrier":
             p.pp -= 1
-            n = rolld4()
+            n = rolld4() - 1
             p.bots[n].def_bonus = 1000
             return 1
 

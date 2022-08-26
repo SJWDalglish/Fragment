@@ -4,7 +4,7 @@ from card import *
 from resourcesHandler import *
 import abilities as ab
 
-blank_bot = Bot(Frame("Bot", "None", 0, 0, "None", "None", "None"))
+blank_bot = Bot(Frame("BlankBot", "None", 0, 0, "None", "None", "None"))
 # Action costs
 _start_pp = 0
 _start_hp = 20
@@ -45,9 +45,9 @@ class Player:
     def count_cards(self):
         card_count = [0, 0, 0, 0]
         for card in self.hand:
-            if isinstance(card, Generator):
-                card_count[0] += 1
             if isinstance(card, Frame):
+                card_count[0] += 1
+            if isinstance(card, Generator):
                 card_count[1] += 1
             if isinstance(card, Part):
                 card_count[2] += 1
@@ -79,7 +79,7 @@ class Player:
         cards = []
         bot_list = []
         for bot in self.bots:
-            if bot.name == "BlankBot":
+            if bot.isblank():
                 bot_list.append([len(bot_list) + 1, "", "", ""])
             else:
                 bot_list.append(
@@ -111,3 +111,5 @@ class Player:
             print(self.name, "'s bot ", self.bots[bot_num].name, ' generated ', pp_gain, 'PP using ', source)
         return 1
 
+    def draw(self):
+        self.hand.append(self.deck.pop())

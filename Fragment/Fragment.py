@@ -1,6 +1,7 @@
-import panpdas as pd
+import pandas as pd
 import numpy as np
 import abilities as ab
+import os
 
 from card import *
 from player import Player
@@ -175,7 +176,7 @@ def game_manager(turn, player1, player2, resource_handler, show=False):
 
 
 def take_turn(player, opponent, resource_handler, show=False, log=[]):
-    player.generate_pp(opponent, resource_handler, True)  # Generate PP for bots according to associated resources
+    generate_pp(player, opponent, resource_handler, show)  # Generate PP for bots according to associated resources
     player.pp += pp_per_turn  # Update PP
     for i in range(hand_draw_size):
         draw(player, opponent, True, show)  # Draw a card
@@ -292,7 +293,7 @@ def take_turn_player(player, opponent, resource_handler, show=False):
 
         # choice = input('Select an action to take:\n[1] Build a bot\n[2] Upgrade a bot\n[3] Collect a resource\n'
         #                '[4] Refresh resources\n[5] End turn\n[6] Draw a card\n[7] Exit')
-        match "choice":
+        match choice:
             case 'Take action':
                 take_action(player, opponent, resource_handler, show)
             case 'Build a bot':
@@ -317,21 +318,21 @@ def take_turn_player(player, opponent, resource_handler, show=False):
 # TODO: get csv files and integrate them
 def prep_cards():
     # abilities = pd.read_csv('Fragment 1.0 CSV Files/Abilities.csv')
-    frames = pd.read_csv('../CSV Files/Frames.csv')
-    generators = pd.read_csv('../CSV Files/Generators.csv')
-    parts = pd.read_csv('../CSV Files/Parts.csv')
+    frames = pd.read_csv('CSV/Frames.csv')
+    generators = pd.read_csv('CSV/Generators.csv')
+    parts = pd.read_csv('CSV/Parts.csv')
 
     frame_list = []
     for index, row in frames.iterrows():
-        frame_list.append(Frame(row['Name'], row['Type'], row['Cost'], row['HP'], row['Ability']))
+        frame_list.append(Frame(row['Name'], row['Deck'], row['Cost'], row['HP'], row['Desc'], row['Action 1'], row['Action 2']))
 
     generator_list = []
     for index, row in generators.iterrows():
-        generator_list.append(Generator(row['Name'], row['Type'], row['Cost'], row['PP'], row['Ability']))
+        generator_list.append(Generator(row['Name'], row['Deck'], row['Cost'], row['HP'], row['Desc'], row['Ability 1'], row['Ability 2']))
 
     part_list = []
     for index, row in parts.iterrows():
-        part_list.append(Part(row['Name'], row['Cost'], row['HP'], row['PP'], row['Ability']))
+        part_list.append(Part(row['Name'], row['Cost'], row['HP'], row['Desc'], row['Action']))
 
     return [frame_list, generator_list, part_list]
 
@@ -441,8 +442,8 @@ def run_test_game(game_num: int, log, strategy1, strategy2):
 
 
 def test_turn(p: Player, o: Player, rh: ResourceHandler, game_num: int, turn_num: int, log):
-    p.ap += ap_per_turn  # Update AP
-    p.generate_pp(o, rh)  # Generate PP for bots according to associated resources
+    p.pp += pp_per_turn  # Update AP
+    generate_pp(p, o, rh)  # Generate PP for bots according to associated resources
     for i in range(hand_draw_size):
         p.hand.append(p.deck.pop())  # Draw a card
 

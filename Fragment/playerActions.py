@@ -342,6 +342,11 @@ def refresh_resources(player: Player, opp: Player, rh: ResourceHandler, show=Fal
     else:
         player.pp -= player.resource_swap_cost
 
+    # Post action abilities
+    for i in range(4):
+        ab.hp_ability(player, opp, i, "Burn", show)
+        ab.pp_ability(opp, i, "Spoils", show)
+
     # Log action
     if show:
         print(player.name + ' refreshed all resources ')
@@ -366,15 +371,18 @@ def select_attack_list(p: Player, bot_num: int, select_text: str, show=False):
 
 
 def take_action(p: Player, o: Player, rh: ResourceHandler, show=False):
+    p.show_bots()
     n = select_bot_list(p, "Select bot to attack with ")
     if n is None:
         return 0
+    n = int(n)-1
 
-    m = select_attack_list(p, int(n), "Select an action to take ", show)
-    if n is None:
+    m = select_attack_list(p, n, "Select an action to take ", show)
+    if m is None:
         return 0
+    m = int(m) - 1
 
-    attack(p, o, int(n), p.bots[n].actions[int(m)-1], show)
+    attack(p, o, n, p.bots[n].actions[m], show)
     return 1
 
 
