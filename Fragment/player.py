@@ -3,6 +3,7 @@ from random import randint, shuffle
 from card import *
 from resourcesHandler import *
 import abilities as ab
+import numpy as np
 
 blank_bot = Bot(Frame("Bot", "None", 0, 0, "None", "None", "None"))
 # Action costs
@@ -75,6 +76,17 @@ class Player:
                 cards.append(card)
         print(tabulate(card_list, headers=headers))
         return cards
+
+    def listify_bots(self):
+        bot_list = []
+        for bot in self.bots:
+            if bot.isblank():
+                bot_list.append([" ", " ", " "])
+            else:
+                abs = ', '.join(bot.abilities + bot.actions)
+                bot_list.append([bot.name, str(int(bot.current_hp)) + "/" + str(int(bot.max_hp)) + "HP", abs])
+        bot_list = np.array(bot_list).T.tolist()
+        return bot_list
 
     def show_bots(self):
         cards = []

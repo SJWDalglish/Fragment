@@ -1,4 +1,4 @@
-﻿Name,Deck,Cost,HP,Desc,Ability 1,Ability 2
+Name,Deck,Cost,HP,Desc,Ability 1,Ability 2
 Nocta,Acquire,1,2,,Acquire,
 Syna,Acquire,2,4,,Acquire,Sync
 Luna,Acquire,2,4,,Acquire,Circle Back
@@ -41,8 +41,3 @@ Weldo,Tinker,2,4,,Tinker,Reinforce
 Pringu,Tinker,2,4,,Tinker,Repurpose
 Washo,Tinker,2,4,,Tinker,Spare Parts
 Clacku,Tinker,2,4,,Tinker,Rejig
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,

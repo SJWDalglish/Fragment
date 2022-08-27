@@ -101,7 +101,7 @@ def attack(p: Player, o: Player, i: int, name: str, show=False):
             return basic_attack(p, o, i, 3, roll_dmg(5, 2), "Bullet Blitz", show)
 
         case "Multi Missile":
-            return basic_attack(p, o, i, 4, roll_dmg(5, 3), "Multi Missile", show)
+            return basic_attack(p, o, i, 4, roll_dmg(7, 2), "Multi Missile", show)
 
         case "Cure Wounds":
             p.pp -= 1

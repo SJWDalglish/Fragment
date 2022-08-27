@@ -63,7 +63,7 @@ def select_bot_list(player: Player, select_text: str):
     return None
 
 
-def draw(p: Player, o: Player, free: bool, show=False):
+def draw(p: Player, o: Player, free=False, show=False):
     # Handle discount ability
     draw_discount = 0
     extra_cards = 0
@@ -130,6 +130,10 @@ def build(p: Player, o: Player, show=False):
                 continue
         break
 
+    return build_bot(p, o, frame_selected, bot_num_selected, build_discount)
+
+
+def build_bot(p, o, frame_selected, bot_num_selected, build_discount, show):
     # Clean up hand, minus pp, add bot
     new_bot = Bot(frame_selected, int(bot_num_selected))
     p.hand.remove(frame_selected)

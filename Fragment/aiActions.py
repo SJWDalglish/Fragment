@@ -11,6 +11,50 @@ resource_swap_cost = 1
 resource_refresh_cost = 2
 bot_move_cost = 1
 
+
+def calc_actions(p: Player, acl, abl):
+    # Handle discount ability
+    build_discount = 0
+    power_discount = 0
+    upgrade_discount = 0
+    move_discount = 0
+    draw_discount = 0
+    swap_discount = 0
+    for i in range(4):
+        build_discount += p.bots[i].abilities.count("Pollinate")
+        power_discount += p.bots[i].abilities.count("Lightning")
+        upgrade_discount += p.bots[i].abilities.count("Fusion")
+        move_discount += p.bots[i].abilities.count("Hurricane")
+        draw_discount += p.bots[i].abilities.count("Agile")
+        swap_discount += p.bots[i].abilities.count("Frack")
+
+    actions_list = []
+    movable = False
+    for card in p.hand:
+        if isinstance(card, Frame):
+            if card.cost - build_discount <= p.pp:
+                actions_list.append(["Build", card])
+        if isinstance(card, Generator):
+            if card.cost - power_discount <= p.pp:
+                actions_list.append(["Power", card])
+        if isinstance(card, Part):
+            if card.cost - upgrade_discount <= p.pp:
+                actions_list.append(["Upgrade", card])
+    for bot in p.bots:
+        if not bot.isblank() and (p.move_cost - move_discount <= p.pp):
+            actions_list.append(["Move", bot])
+        for action in bot.actions:
+            if acl.loc[acl.Name == action, "Cost"].iloc[0] <= p.pp:
+                actions_list.append(["Action", bot, action])
+    if p.draw_cost - draw_discount <= p.pp:
+        actions_list.append(["Draw"])
+    if p.resource_swap_cost - swap_discount <= p.pp:
+        actions_list.append(["Swap"])
+    if p.refresh_cost - swap_discount <= p.pp:
+        actions_list.append(["Refresh"])
+    return actions_list
+
+
 # AI methods
 def ai_build(player: Player, possible_combos, show=False):
     choice = randint(0, len(possible_combos) - 1)

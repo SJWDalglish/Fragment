@@ -321,6 +321,8 @@ def prep_cards():
     frames = pd.read_csv('CSV/Frames.csv')
     generators = pd.read_csv('CSV/Generators.csv')
     parts = pd.read_csv('CSV/Parts.csv')
+    action_list = pd.read_csv('CSV/Actions.csv')
+    ability_list = pd.read_csv('CSV/Abilities.csv')
 
     frame_list = []
     for index, row in frames.iterrows():
@@ -340,9 +342,13 @@ def prep_cards():
 def display_field(player: Player, opponent: Player, resource_handler: ResourceHandler):
     print('\n' + ('+' * 50) + '\n')
     opponent.show_stats()
-    opponent.show_bots()
-    resource_handler.show_pile()
-    player.show_bots()
+    field = opponent.listify_bots()
+    field.extend([[" ", " ", " ", " "], resource_handler.pile, [" ", " ", " ", " "]])
+    field.extend(player.listify_bots())
+    print(tabulate(field, maxcolwidths=[12 for i in range(4)]))
+    # opponent.show_bots()
+    # resource_handler.show_pile()
+    # player.show_bots()
     player.show_stats()
     player.show_hand()
     print('\n' + ('+' * 50) + '\n')
