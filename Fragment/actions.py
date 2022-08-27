@@ -58,8 +58,8 @@ def destroy_bot(p: Player, o: Player, dead_bot_num: int, show=False):
     p.bots[dead_bot_num] = blank_bot
 
     for i in range(4):
-        p.pp += p.bots[i].count("Recycle") * p.default_pp_gained
-        o.pp += o.bots[i].count("Spare Parts") * o.default_pp_gained
+        p.pp += p.bots[i].abilities.count("Recycle") * p.default_pp_gained
+        o.pp += o.bots[i].abilities.count("Spare Parts") * o.default_pp_gained
         o.bots[i].atk_bonus += p.bots[i].count("Harvest")
 
     return 1

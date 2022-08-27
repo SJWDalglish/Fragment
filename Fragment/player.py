@@ -27,7 +27,9 @@ class Player:
         self.resource = resource
         self.hp = _start_hp
         self.deck = deck
-        self.bots = [blank_bot, blank_bot, blank_bot, blank_bot]
+        self.bots = []
+        for i in range(4):
+            self.bots.append(Bot(Frame("Bot", "None", 0, 0, "None", "None", "None"), i))
         self.hand = []
         self.discard = []
         self.pp = _start_pp

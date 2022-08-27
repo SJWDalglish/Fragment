@@ -316,10 +316,10 @@ def swap_resource(player: Player, opp: Player, rh: ResourceHandler, show=False):
         if num_choice in [str(x) for x in range(4)]:
             break
 
-    return swap_chosen_resource(player, opp, num_choice, rh, show)
+    return swap_chosen_resource(player, opp, num_choice, swap_discount, rh, show)
 
 
-def swap_chosen_resource(player, opp, num_choice, rh, show):
+def swap_chosen_resource(player: Player, opp: Player, num_choice: int, swap_discount: int, rh: ResourceHandler, show=False):
     o, n = rh.swap_resource(int(num_choice))
     if swap_discount <= player.actions.count("Swap"):
         player.pp -= player.resource_swap_cost

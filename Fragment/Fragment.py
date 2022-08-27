@@ -176,8 +176,8 @@ def game_manager(turn, player1, player2, resource_handler, show=False):
         return 2
 
 
-def take_turn_ai(p, o, rh,show=False, log=[]):
-    while True:
+def take_turn_ai(p, o, rh, show=False, log=[]):
+    for i in range(10):
         poss_actions, discount_list = aiActions.calc_actions(p, p.action_list, p.ability_list)
         if len(poss_actions) > 0:
             aiActions.rand_action(p, o, poss_actions, discount_list, rh, show)

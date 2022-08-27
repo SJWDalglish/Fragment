@@ -1,5 +1,6 @@
 from tabulate import tabulate
-from random import randint, shuffle
+import random
+from random import randint, shuffle, choice
 
 import actions
 import playerActions
@@ -51,8 +52,12 @@ def calc_actions(p: Player, acl, abl):
                 if b2 != bot:
                     actions_list.append(["Move", bot.position, b2.position])
         for action in bot.actions:
-            if acl.loc[acl.Name == action, "Cost"].iloc[0] <= p.pp:
-                actions_list.append(["Action", bot.position, action])
+            if not bot.isblank() and action != "None":
+                acdf = acl.loc[acl.Name == action, "Cost"]
+                if acdf.size == 0:
+                    print("Tried", bot.name, "and", action, "but couldn't find it!")
+                elif acdf.iloc[0] <= p.pp:
+                    actions_list.append(["Action", bot.position, action])
     if p.draw_cost - draw_discount <= p.pp:
         actions_list.append(["Draw"])
     if p.resource_swap_cost - swap_discount <= p.pp:
@@ -79,7 +84,7 @@ def rand_action(p, o, action_list, discount_list, rh, show=False):
         case "Draw":
             playerActions.draw(p, o, False, show)
         case "Swap":
-            playerActions.swap_chosen_resource(p, o, rh, i, show)
+            playerActions.swap_chosen_resource(p, o, choice[1], discount_list[5], rh, show)
         case "Refresh":
             playerActions.refresh_resources(p, o, rh, show)
     return 1
