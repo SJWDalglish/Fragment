@@ -130,7 +130,7 @@ def build(p: Player, o: Player, show=False):
                 continue
         break
 
-    return build_bot(p, o, frame_selected, bot_num_selected, build_discount)
+    return build_bot(p, o, frame_selected, bot_num_selected, build_discount, show)
 
 
 def build_bot(p, o, frame_selected, bot_num_selected, build_discount, show):
@@ -178,6 +178,10 @@ def power(p: Player, o: Player, show=False):
     if gen_selected is None:
         return 0
 
+    return power_bot(p, o, gen_selected, bot_selected, power_discount, show)
+
+
+def power_bot(p, o, gen_selected, bot_selected, power_discount, show):
     # Clean up
     p.bots[int(bot_selected) - 1].power(gen_selected)
     p.pp -= max(0, gen_selected.cost - power_discount)
@@ -221,6 +225,10 @@ def upgrade(p: Player, o: Player, show=False):
     if part_selected is None:
         return 0
 
+    return upgrade_bot(p, o, part_selected, bot_selected, upgrade_discount, show)
+
+
+def upgrade_bot(p, o, part_selected, bot_selected, upgrade_discount, show):
     # Clean up
     p.bots[int(bot_selected) - 1].upgrade(part_selected)
     p.pp -= min(0, part_selected.cost - upgrade_discount)
@@ -268,24 +276,28 @@ def move(player: Player, opp: Player, show=False):
         break
     b2 = int(num_two_selected)
 
+    return move_bot(player, opp, b1, b2, move_discount, show)
+
+
+def move_bot(p, o, b1, b2, move_discount, show):
     # Swap bots
-    tmp_bot = player.bots[b1]
-    player.bots[b1] = player.bots[b2]
-    player.bots[b2] = tmp_bot
+    tmp_bot = p.bots[b1]
+    p.bots[b1] = p.bots[b2]
+    p.bots[b2] = tmp_bot
 
     # Resolve power cost
-    if move_discount <= player.actions.count("Move"):
-        player.pp -= player.move_cost
+    if move_discount <= p.actions.count("Move"):
+        p.pp -= p.move_cost
 
     # Post action abilities
     for i in range(4):
-        ab.hp_ability(player, opp, i, "Rain Recollection", show)
-        ab.pp_ability(opp, i, "Backdraft", show)
+        ab.hp_ability(p, o, i, "Rain Recollection", show)
+        ab.pp_ability(o, i, "Backdraft", show)
 
     # Log action
     if show:
-        print(player.name + ' moved ' + player.bots[b1 - 1].name)
-    player.actions.append("Move")
+        print(p.name + ' moved ' + p.bots[b1 - 1].name)
+    p.actions.append("Move")
     return 1
 
 
@@ -302,15 +314,20 @@ def swap_resource(player: Player, opp: Player, rh: ResourceHandler, show=False):
         if num_choice == 'x':
             return 0
         if num_choice in [str(x) for x in range(4)]:
-            o, n = rh.swap_resource(int(num_choice))
-            if swap_discount <= player.actions.count("Swap"):
-                player.pp -= player.resource_swap_cost
-
-            # Blaze ability
-            if o == 'Fossil Fuel':
-                for bot in player.bots:
-                    player.pp += bot.abilities.count("Blaze") * 4
             break
+
+    return swap_chosen_resource(player, opp, num_choice, rh, show)
+
+
+def swap_chosen_resource(player, opp, num_choice, rh, show):
+    o, n = rh.swap_resource(int(num_choice))
+    if swap_discount <= player.actions.count("Swap"):
+        player.pp -= player.resource_swap_cost
+
+    # Blaze ability
+    if o == 'Fossil Fuel':
+        for bot in player.bots:
+            player.pp += bot.abilities.count("Blaze") * 4
 
     # Post action abilities
     for i in range(4):

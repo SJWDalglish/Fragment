@@ -22,7 +22,7 @@ _special_pp_gained = 1
 
 class Player:
 
-    def __init__(self, name: str, resource: str, deck, ai=False, strategy=[1, 1, 1, 1, 1, 1]):
+    def __init__(self, name: str, resource: str, deck, action_list, ability_list, ai=False, strategy=[1, 1, 1, 1, 1, 1]):
         self.name = name
         self.resource = resource
         self.hp = _start_hp
@@ -42,6 +42,8 @@ class Player:
         self.special_pp_gained = _special_pp_gained
         self.actions = []
         self.def_bonus = 0
+        self.action_list = action_list
+        self.ability_list = ability_list
 
     def count_cards(self):
         card_count = [0, 0, 0, 0]

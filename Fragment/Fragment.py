@@ -3,6 +3,7 @@ import numpy as np
 import abilities as ab
 import os
 
+import aiActions
 from card import *
 from player import Player
 from playerActions import *
@@ -93,7 +94,7 @@ def init_decks():
     player_deck = []
     opponent_deck = []
 
-    [generators, frames, parts] = prep_cards()
+    [generators, frames, parts, acl, abl] = prep_cards()
 
     for card in generators:
         if card.deck == player_type:
@@ -114,8 +115,8 @@ def init_decks():
     player_ai = player_game_style == "3"
     opponent_ai = (player_game_style == "1" or player_game_style == "3")
 
-    player = Player("Player 1", player_type, player_deck, player_ai)
-    opponent = Player("Player 2", opponent_type, opponent_deck, opponent_ai)
+    player = Player("Player 1", player_type, player_deck, acl, abl, player_ai)
+    opponent = Player("Player 2", opponent_type, opponent_deck, acl, abl, opponent_ai)
 
     resource_handler = ResourceHandler()
 
@@ -175,6 +176,14 @@ def game_manager(turn, player1, player2, resource_handler, show=False):
         return 2
 
 
+def take_turn_ai(p, o, rh,show=False, log=[]):
+    while True:
+        poss_actions, discount_list = aiActions.calc_actions(p, p.action_list, p.ability_list)
+        if len(poss_actions) > 0:
+            aiActions.rand_action(p, o, poss_actions, discount_list, rh, show)
+    return 1
+
+
 def take_turn(player, opponent, resource_handler, show=False, log=[]):
     generate_pp(player, opponent, resource_handler, show)  # Generate PP for bots according to associated resources
     player.pp += pp_per_turn  # Update PP
@@ -189,66 +198,6 @@ def take_turn(player, opponent, resource_handler, show=False, log=[]):
         output = take_turn_player(player, opponent, resource_handler, show)
 
     return output
-
-
-def take_turn_ai(player, opponent, resource_handler, show=False):
-    while True:
-        available_choices = []  # Used to track choices available to the player
-        card_count = player.count_cards()
-        gen_cards = player.get_hand(Generator)
-        frame_cards = player.get_hand(Frame)
-        part_cards = player.get_hand(Part)
-
-        possible_combos = []  # Check if a bot can be built
-        if card_count[0] > 0 and card_count[1] > 0:
-            for card1 in gen_cards:
-                for card2 in frame_cards:
-                    if card1.cost + card2.cost <= player.ap:
-                        possible_combos.append([card1, card2])
-        if len(possible_combos) > 0:
-            available_choices.append('Build a bot')
-
-        possible_upgrades = []  # Check if a bot can be upgraded
-        if card_count[2] > 0 and card_count[3] > 0:
-            for card in part_cards:
-                if card.cost <= player.ap:
-                    possible_upgrades.append(card)
-        if len(possible_upgrades) > 0:
-            available_choices.append('Upgrade a bot')
-
-        possible_swaps = []
-        good_resources = player.resources
-        for resource in resource_handler.pile:
-            if resource not in good_resources:
-                possible_swaps.append(resource)
-
-        if player.pp >= resource_swap_cost and len(possible_swaps) > 0:
-            available_choices.append('Swap a resource')
-        if player.pp >= resource_refresh_cost and len(possible_swaps) == 4:
-            available_choices.append('Refresh all resources')
-        if player.pp >= draw_cost:
-            available_choices.append('Draw a card')
-        # if player.ap >= ability_cost: # to add later
-        available_choices.append('End Turn')
-
-        num_choice = randint(0, len(available_choices) - 1)
-        choice = available_choices[num_choice]
-
-        if choice == 'Build a bot':
-            bot_built = ai_build(player, opponent, possible_combos, show)
-        elif choice == 'Upgrade a bot':
-            [bot_upgraded, part_upgraded] = player.ai_upgrade(possible_upgrades, show)
-        elif choice == 'Swap a resource':
-            [resource_position, old_resource, new_resource] = player.ai_swap_resource(resource_handler, show)
-        elif choice == 'Refresh all resources':
-            refresh_resources(player, opponent, resource_handler, show)
-        elif choice == 'Draw a card':
-            card_drawn = draw(player, opponent, False, show)
-        elif choice == 'End Turn':
-            if show:
-                print(player.name + ' ends their turn.')
-            break
-    return 1
 
 
 def take_turn_player(player, opponent, resource_handler, show=False):
@@ -336,7 +285,7 @@ def prep_cards():
     for index, row in parts.iterrows():
         part_list.append(Part(row['Name'], row['Cost'], row['HP'], row['Desc'], row['Action']))
 
-    return [frame_list, generator_list, part_list]
+    return [frame_list, generator_list, part_list, action_list, ability_list]
 
 
 def display_field(player: Player, opponent: Player, resource_handler: ResourceHandler):

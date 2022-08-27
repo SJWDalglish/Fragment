@@ -1,16 +1,16 @@
 ﻿Name,Resource,Cost,Exp,Desc
 Incentivize,Acquire,2,2,Roll a d4. Draw that many cards.
 Shunt,All,1,1,1 dmg
-Energy beam,All,3,5,5 dmg
+Energy Beam,All,3,5,5 dmg
 Shock,All,2,3,3 dmg
-Giga blast,All,4,7,7 dmg
-Double jab,All,1,1,Flip 2 coins. 1 damage for each heads
-Triple tap,All,2,3,Flip 3 coins. 2 damage for each heads.
+Giga Blast,All,4,7,7 dmg
+Double Jab,All,1,1,Flip 2 coins. 1 damage for each heads
+Triple Tap,All,2,3,Flip 3 coins. 2 damage for each heads.
 Bullet Blitz,All,3,5,Flip 5 coins. 2 damage for each heads.
 Multi Missile,All,4,7,Flip 7 coins. 2 damage for each heads.
 Deplete,Augment,1,1,Roll a d4. Attack damage is increased by that amount on your next attack.
 Fireball,Consume,1,1,Roll a d4. Deal 2 dmg to enemy bot in that position
 Twister,Convert,1,1,Roll a d4. Swap opponent bot with bot in that position
-Cure wounds,Cultivate,1,1,Roll a d4. Give +2 HP to the ally bot in that position
+Cure Wounds,Cultivate,1,1,Roll a d4. Give +2 HP to the ally bot in that position
 Barrier,Preserve,2,2,Roll a d4. Prevent damage to the ally bot in that position for one turn
 Plan,Tinker,2,2,Roll a d4. The effect of your next mechanic card is increased by that amount.

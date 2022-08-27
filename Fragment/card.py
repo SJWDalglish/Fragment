@@ -40,6 +40,8 @@ class Card(object):
 
 class Generator(Card):
     def __init__(self, name: str, deck: str, cost: int, hp: int, desc: str, ability1: str, ability2: str):
+        if not isinstance(ability2, str):
+            ability2 = "None"
         super().__init__(name, deck, cost, hp, desc, ability1, ability2, "None", "None")
 
 

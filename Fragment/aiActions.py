@@ -1,5 +1,8 @@
 from tabulate import tabulate
 from random import randint, shuffle
+
+import actions
+import playerActions
 from player import Player
 from card import Card, Frame, Generator, Part, Bot
 from resourcesHandler import ResourceHandler
@@ -27,32 +30,59 @@ def calc_actions(p: Player, acl, abl):
         move_discount += p.bots[i].abilities.count("Hurricane")
         draw_discount += p.bots[i].abilities.count("Agile")
         swap_discount += p.bots[i].abilities.count("Frack")
+    discount_list = [build_discount, power_discount, upgrade_discount, move_discount, draw_discount, swap_discount]
 
     actions_list = []
     movable = False
     for card in p.hand:
-        if isinstance(card, Frame):
-            if card.cost - build_discount <= p.pp:
-                actions_list.append(["Build", card])
-        if isinstance(card, Generator):
-            if card.cost - power_discount <= p.pp:
-                actions_list.append(["Power", card])
-        if isinstance(card, Part):
-            if card.cost - upgrade_discount <= p.pp:
-                actions_list.append(["Upgrade", card])
+        for bot in p.bots:
+            if isinstance(card, Frame):
+                if card.cost - build_discount <= p.pp and bot.isblank():
+                    actions_list.append(["Build", card, bot.position])
+            if isinstance(card, Generator):
+                if card.cost - power_discount <= p.pp and not bot.isblank() and bot.num_gens < 2:
+                    actions_list.append(["Power", card, bot.position])
+            if isinstance(card, Part):
+                if card.cost - upgrade_discount <= p.pp and not bot.isblank() and bot.num_parts < 2:
+                    actions_list.append(["Upgrade", card, bot.position])
     for bot in p.bots:
         if not bot.isblank() and (p.move_cost - move_discount <= p.pp):
-            actions_list.append(["Move", bot])
+            for b2 in p.bots:
+                if b2 != bot:
+                    actions_list.append(["Move", bot.position, b2.position])
         for action in bot.actions:
             if acl.loc[acl.Name == action, "Cost"].iloc[0] <= p.pp:
-                actions_list.append(["Action", bot, action])
+                actions_list.append(["Action", bot.position, action])
     if p.draw_cost - draw_discount <= p.pp:
         actions_list.append(["Draw"])
     if p.resource_swap_cost - swap_discount <= p.pp:
-        actions_list.append(["Swap"])
+        for i in range(4):
+            actions_list.append(["Swap", i])
     if p.refresh_cost - swap_discount <= p.pp:
         actions_list.append(["Refresh"])
-    return actions_list
+    return actions_list, discount_list
+
+
+def rand_action(p, o, action_list, discount_list, rh, show=False):
+    choice = random.choice(action_list)
+    match choice[0]:
+        case "Build":
+            playerActions.build_bot(p, o, choice[1], choice[2], discount_list[0], show)
+        case "Power":
+            playerActions.power_bot(p, o, choice[1], choice[2], discount_list[1], show)
+        case "Upgrade":
+            playerActions.upgrade_bot(p, o, choice[1], choice[2], discount_list[2], show)
+        case "Move":
+            playerActions.move_bot(p, o, choice[1], choice[2], discount_list[3], show)
+        case "Action":
+            actions.attack(p, o, choice[1], choice[2], show)
+        case "Draw":
+            playerActions.draw(p, o, False, show)
+        case "Swap":
+            playerActions.swap_chosen_resource(p, o, rh, i, show)
+        case "Refresh":
+            playerActions.refresh_resources(p, o, rh, show)
+    return 1
 
 
 # AI methods
