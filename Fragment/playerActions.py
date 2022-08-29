@@ -73,17 +73,20 @@ def draw(p: Player, o: Player, free=False, show=False):
 
     # Draw cards
     for i in range(extra_cards + 1):
-        card = p.deck.pop()
-        p.hand.append(card)
+        if len(p.deck) > 0:
+            card = p.deck.pop()
+            p.hand.append(card)
 
-        # Log action
-        if show:
-            print(p.name + ' draws card ' + card.name)
+            # Post action abilities
+            for j in range(4):
+                ab.hp_ability(p, o, j, "Disruption", show)
+                ab.pp_ability(o, j, "Sync", show)
 
-        # Post action abilities
-        for j in range(4):
-            ab.hp_ability(p, o, j, "Disruption", show)
-            ab.pp_ability(o, j, "Sync", show)
+            # Log action
+            if show:
+                print(p.name + ' draws card ' + card.name)
+        elif show:
+            print('Deck empty! No cards drawn.')
 
     # Resolve payment
     p.actions.append("Draw")
@@ -283,7 +286,9 @@ def move_bot(p, o, b1, b2, move_discount, show):
     # Swap bots
     tmp_bot = p.bots[b1]
     p.bots[b1] = p.bots[b2]
+    p.bots[b1].position = b1
     p.bots[b2] = tmp_bot
+    p.bots[b2].position = b2
 
     # Resolve power cost
     if move_discount <= p.actions.count("Move"):
@@ -296,7 +301,7 @@ def move_bot(p, o, b1, b2, move_discount, show):
 
     # Log action
     if show:
-        print(p.name + ' moved ' + p.bots[b1 - 1].name)
+        print(p.name + ' moved ' + tmp_bot.name)
     p.actions.append("Move")
     return 1
 

@@ -5,7 +5,7 @@ from resourcesHandler import *
 import abilities as ab
 import numpy as np
 
-blank_bot = Bot(Frame("Bot", "None", 0, 0, "None", "None", "None"))
+blank_frame = Frame("Bot", "None", 0, 0, "None", "None", "None")
 # Action costs
 _start_pp = 0
 _start_hp = 20

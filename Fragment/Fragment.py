@@ -123,7 +123,7 @@ def init_decks():
     while True:
         show_num = input(
             "How do you want to play?\n[1] Show descriptions\n[2] Hide descriptions")
-        if not (["1", "2"].count(player_game_style) > 0):
+        if not (["1", "2"].count(show_num) > 0):
             print("Not an available option!")
             continue
         break

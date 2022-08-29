@@ -26,5 +26,5 @@ def reallocate(o: Player, i: int, show=False):
     pp_gained = o.special_pp_gained * o.bots[i].abilities.count("Reallocate")
     o.pp += pp_gained
     if show and pp_gained > 0:
-        print(o.name + "'s bot " + o.bots[i].name + 'syphoned' + str(pp_gained) + 'PP from opposing bot.')
+        print(o.name + "'s bot", o.bots[i].name, 'syphoned', str(pp_gained), 'PP from opposing bot.')
 

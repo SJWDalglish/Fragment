@@ -58,7 +58,7 @@ def calc_actions(p: Player, acl, abl):
                     print("Tried", bot.name, "and", action, "but couldn't find it!")
                 elif acdf.iloc[0] <= p.pp:
                     actions_list.append(["Action", bot.position, action])
-    if p.draw_cost - draw_discount <= p.pp:
+    if p.draw_cost - draw_discount <= p.pp and len(p.deck) > 0:
         actions_list.append(["Draw"])
     if p.resource_swap_cost - swap_discount <= p.pp:
         for i in range(4):

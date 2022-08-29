@@ -1,6 +1,7 @@
 import random
 import abilities as ab
-from player import Player, blank_bot
+from card import Bot
+from player import Player, blank_frame
 
 
 def cointoss():
@@ -23,19 +24,19 @@ def basic_attack(p: Player, o: Player, i: int, cost: int, dmg: int, name: str, s
     if o.bots[i].isblank():
         o.hp -= dmg
         if show:
-            print(p.name, " did ", dmg, " damage to ", o.name, " using ", name)
+            print(p.name, "did", dmg, "damage to", o.name, "using", p.bots[i].name, "with", name)
     else:
         o.bots[i].current_hp -= dmg
         if show:
-            print(p.name, " did ", dmg, " damage to ", o.bots[i].name, " using ", name)
+            print(p.name, "did", dmg, "damage to", o.bots[i].name, "using", p.bots[i].name, "with",  name)
         if o.bots[i].current_hp <= 0:
             destroy_bot(o, p, i, show)
 
     for j in range(p.bots[i].abilities.count("Scorch")):
-        t2 = rolld4()
+        t2 = rolld4() - 1
         o.bots[t2].current_hp -= 1
         if show:
-            print(p.name, " did ", 1, " damage to ", o.bots[t2].name, " using Scorch")
+            print(p.name, " did ", 1, " damage to ", o.bots[t2].name, "using", p.bots[i].name, "with Scorch")
         if o.bots[i].current_hp <= 0:
             destroy_bot(o, p, i, show)
 
@@ -55,12 +56,12 @@ def destroy_bot(p: Player, o: Player, dead_bot_num: int, show=False):
         return 0
 
     p.discard.extend(db.components)
-    p.bots[dead_bot_num] = blank_bot
+    p.bots[dead_bot_num] = Bot(blank_frame, dead_bot_num)
 
     for i in range(4):
         p.pp += p.bots[i].abilities.count("Recycle") * p.default_pp_gained
         o.pp += o.bots[i].abilities.count("Spare Parts") * o.default_pp_gained
-        o.bots[i].atk_bonus += p.bots[i].count("Harvest")
+        o.bots[i].atk_bonus += p.bots[i].abilities.count("Harvest")
 
     return 1
 
@@ -136,9 +137,12 @@ def attack(p: Player, o: Player, i: int, name: str, show=False):
             j = rolld4() - 1
             tmp_bot = o.bots[i]
             o.bots[i] = o.bots[j]
+            o.bots[i].position = i
             o.bots[j] = tmp_bot
+            o.bots[j].position = j
+
             if show:
-                print(p.bots[i].name, "moved", o.bots[j].name, "for using Twister")
+                print(p.bots[i].name, "moved", o.bots[j].name, "using Twister")
             return 1
 
         case "Deplete":
