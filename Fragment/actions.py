@@ -116,10 +116,11 @@ def attack(p: Player, o: Player, i: int, name: str, show=False):
             p.pp -= 1
             n = rolld4()
             for j in range(n):
-                card = p.deck.pop()
-                p.hand.append(card)
-                ab.hp_ability(p, o, i, "Disruption")
-                ab.pp_ability(o, i, "Sync")
+                if len(p.deck) > 0:
+                    card = p.deck.pop()
+                    p.hand.append(card)
+                    ab.hp_ability(p, o, i, "Disruption")
+                    ab.pp_ability(o, i, "Sync")
             if show:
                 print(p.bots[i].name, "healed", p.bots[j].name, "for 2HP using Cure Wounds")
             return 1
@@ -158,7 +159,7 @@ def attack(p: Player, o: Player, i: int, name: str, show=False):
             j = rolld4() - 1
             p.bots[j].def_bonus = 1000
             if show:
-                print(p.bots[i].name, "protected", p.bots[j].name, "for 2HP using Barrier")
+                print(p.bots[i].name, "protected", p.bots[j].name, "using Barrier")
             return 1
 
         case "Plan":

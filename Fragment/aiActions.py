@@ -35,29 +35,28 @@ def calc_actions(p: Player, acl, abl):
 
     actions_list = []
     movable = False
-    for card in p.hand:
-        for bot in p.bots:
+    for i in range(4):
+        for card in p.hand:
             if isinstance(card, Frame):
-                if card.cost - build_discount <= p.pp and bot.isblank():
-                    actions_list.append(["Build", card, bot.position])
+                if card.cost - build_discount <= p.pp and p.bots[i].isblank():
+                    actions_list.append(["Build", card, i])
             if isinstance(card, Generator):
-                if card.cost - power_discount <= p.pp and not bot.isblank() and bot.num_gens < 2:
-                    actions_list.append(["Power", card, bot.position])
+                if card.cost - power_discount <= p.pp and (not p.bots[i].isblank()) and p.bots[i].num_gens < 2:
+                    actions_list.append(["Power", card, i])
             if isinstance(card, Part):
-                if card.cost - upgrade_discount <= p.pp and not bot.isblank() and bot.num_parts < 2:
-                    actions_list.append(["Upgrade", card, bot.position])
-    for bot in p.bots:
-        if not bot.isblank() and (p.move_cost - move_discount <= p.pp):
-            for b2 in p.bots:
-                if b2 != bot:
-                    actions_list.append(["Move", bot.position, b2.position])
-        for action in bot.actions:
-            if not bot.isblank() and action != "None":
+                if card.cost - upgrade_discount <= p.pp and (not p.bots[i].isblank()) and p.bots[i].num_parts < 2:
+                    actions_list.append(["Upgrade", card, i])
+        if (not p.bots[i].isblank()) and (p.move_cost - move_discount <= p.pp):
+            for j in range(4):
+                if p.bots[j] != p.bots[i]:
+                    actions_list.append(["Move", i, j])
+        for action in p.bots[i].actions:
+            if (not p.bots[i].isblank()) and action != "None":
                 acdf = acl.loc[acl.Name == action, "Cost"]
                 if acdf.size == 0:
-                    print("Tried", bot.name, "and", action, "but couldn't find it!")
+                    print("Tried", p.bots[i].name, "and", action, "but couldn't find it!")
                 elif acdf.iloc[0] <= p.pp:
-                    actions_list.append(["Action", bot.position, action])
+                    actions_list.append(["Action", i, action])
     if p.draw_cost - draw_discount <= p.pp and len(p.deck) > 0:
         actions_list.append(["Draw"])
     if p.resource_swap_cost - swap_discount <= p.pp:
@@ -68,7 +67,7 @@ def calc_actions(p: Player, acl, abl):
     return actions_list, discount_list
 
 
-def rand_action(p, o, action_list, discount_list, rh, show=False):
+def rand_action(p, o, action_list, discount_list, rh, show=False, log=[]):
     choice = random.choice(action_list)
     match choice[0]:
         case "Build":
@@ -87,7 +86,7 @@ def rand_action(p, o, action_list, discount_list, rh, show=False):
             playerActions.swap_chosen_resource(p, o, choice[1], discount_list[5], rh, show)
         case "Refresh":
             playerActions.refresh_resources(p, o, rh, show)
-    return 1
+    return choice
 
 
 # AI methods

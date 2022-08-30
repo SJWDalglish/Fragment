@@ -125,7 +125,7 @@ class Player:
             return 0
         self.pp += pp_gain
         if show and pp_gain > 0:
-            print(self.name, "'s bot ", self.bots[bot_num].name, ' generated ', pp_gain, 'PP using ', source)
+            print(self.name, "'s bot", self.bots[bot_num].name, 'generated', pp_gain, 'PP using', source)
         return 1
 
     def draw(self):

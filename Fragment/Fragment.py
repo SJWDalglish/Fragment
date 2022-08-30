@@ -305,28 +305,15 @@ def display_field(player: Player, opponent: Player, resource_handler: ResourceHa
 
 def init_test():
     status_log = ['Game', 'Turn', 'Player', 'Object', 'Position', 'Stat', 'Value']
-    activity_log = ['Game', 'Turn', 'Player', 'Action', 'Component1', 'Component2', 'Value']
-    win_log = ['Game', 'Turns', 'Player1_Type', 'Player1_Strat', 'Player2_Type', 'Player2_Strat', 'Winner',
-               'Starter_Wins']
+    activity_log = ['Game', 'Turn', 'Player', 'Action', 'Component1', 'Component2']
+    win_log = ['Game', 'Turns', 'Player1_Type', 'Player2_Type', 'Winner']
     log = [[], [], []]
     while True:
         num = input('How many iterations?')
         if num.isdecimal():
             for i in range(int(num)):
                 print('[', end='')
-                strategy1 = []
-                strategy2 = []
-                for i in range(5):
-                    strategy1.append(randint(1, 50))
-                    strategy2.append(randint(1, 50))
-                s1total = sum(strategy1)
-                s2total = sum(strategy2)
-                for i in range(5):
-                    strategy1[i] = int(100 * strategy1[i] / s1total)
-                    strategy2[i] = int(100 * strategy2[i] / s2total)
-                strategy1.append(randint(1, 3))
-                strategy2.append(randint(1, 3))
-                result = run_test_game(i, log, strategy1, strategy2)
+                result = run_test_game(i, log)
                 log[2].append([str(i)] + result)
                 print(']')
             now = str(datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
@@ -338,21 +325,21 @@ def init_test():
             print('Please enter an integer.')
 
 
-def run_test_game(game_num: int, log, strategy1, strategy2):
-    [generators, frames, parts] = prep_cards()
+def run_test_game(game_num: int, log):
+    [generators, frames, parts, acl, abl] = prep_cards()
     player1_type = types[randint(0, 5)]
     player2_type = types[randint(0, 5)]
     player_deck = []
     opponent_deck = []
     for card in generators:
-        if card.type == player1_type:
+        if card.deck == player1_type:
             player_deck.extend(num_generators * list([card]))
-        if card.type == player2_type:
+        if card.deck == player2_type:
             opponent_deck.extend(num_generators * list([card]))
     for card in frames:
-        if card.type == player1_type:
+        if card.deck == player1_type:
             player_deck.extend(num_frames * list([card]))
-        if card.type == player2_type:
+        if card.deck == player2_type:
             opponent_deck.extend(num_frames * list([card]))
     for card in parts:
         player_deck.extend(num_parts * list([card]))
@@ -360,26 +347,16 @@ def run_test_game(game_num: int, log, strategy1, strategy2):
 
     shuffle(player_deck)
     shuffle(opponent_deck)
-    p1 = Player("Player 1", player1_type, player_deck, True, strategy1)
-    p2 = Player("Player 2", player2_type, opponent_deck, True, strategy2)
+    p1 = Player("Player 1", player1_type, player_deck, acl, abl, True)
+    p2 = Player("Player 2", player2_type, opponent_deck, acl, abl, True)
     rh = ResourceHandler()
 
     turn = 0
-    p2.ap += 1
+    p2.pp += 1
     turn_num = 0
     while p1.hp > 0 and p2.hp > 0:
         turn_num += 1
         print('-', end='')
-        # log[0].append([game_num, turn_num, p1.name, 'Player', 0, 'hp', p1.hp])
-        # log[0].append([game_num, turn_num, p2.name, 'Player', 0, 'hp', p2.hp])
-        # for i in range(4):
-        #     log[0].append([game_num, turn_num, p1.name, 'Bot', i, 'name', p1.bots[i].name])
-        #     log[0].append([game_num, turn_num, p1.name, 'Bot', i, 'hp', p1.bots[i].current_hp])
-        #     log[0].append([game_num, turn_num, p1.name, 'Bot', i, 'pp', p1.bots[i].pp])
-        #     log[0].append([game_num, turn_num, p2.name, 'Bot', i, 'name', p2.bots[i].name])
-        #     log[0].append([game_num, turn_num, p2.name, 'Bot', i, 'hp', p2.bots[i].current_hp])
-        #     log[0].append([game_num, turn_num, p2.name, 'Bot', i, 'pp', p2.bots[i].pp])
-        #     log[0].append([game_num, turn_num, '', 'Resource', i, 'name', rh.pile[i]])
         if turn == 0:
             exit_status = test_turn(p1, p2, rh, game_num, turn_num, log)
             if exit_status == 0:
@@ -390,87 +367,36 @@ def run_test_game(game_num: int, log, strategy1, strategy2):
             if exit_status == 0:
                 return 0
             turn = 0
-    if p1.hp > 0:
-        return [turn_num, p1.type, p1.strategy, p2.type, p2.strategy, p1.name, True]
+        if turn_num >= 100:
+            break
+    if p1.hp <= 0:
+        return [turn_num, p1.resource, p2.resource, p2.name]
+    elif p2.hp <= 0:
+        return [turn_num, p1.resource, p2.resource, p1.name]
     else:
-        return [turn_num, p1.type, p1.strategy, p2.type, p2.strategy, p2.name, False]
+        return [turn_num, p1.resource, p2.resource, "Draw"]
 
 
 def test_turn(p: Player, o: Player, rh: ResourceHandler, game_num: int, turn_num: int, log):
-    p.pp += pp_per_turn  # Update AP
     generate_pp(p, o, rh)  # Generate PP for bots according to associated resources
+    p.pp += pp_per_turn  # Update PP
     for i in range(hand_draw_size):
-        p.hand.append(p.deck.pop())  # Draw a card
+        draw(p, o, True)  # Draw a card
 
-    while True:
-        available_choices = []  # Used to track choices available to the player
-        card_count = p.count_cards()
-        gen_cards = p.get_hand(Generator)
-        frame_cards = p.get_hand(Frame)
-        part_cards = p.get_hand(Part)
-
-        possible_combos = []  # Check if a bot can be built
-        if card_count[0] > 0 and card_count[1] > 0:
-            for card1 in gen_cards:
-                for card2 in frame_cards:
-                    if card1.cost + card2.cost <= p.ap:
-                        possible_combos.append([card1, card2])
-        if len(possible_combos) > 0:
-            available_choices.append('Build a bot')
-            available_choices.append('Build a bot')
-            available_choices.append('Build a bot')
-            available_choices.append('Build a bot')
-
-        possible_upgrades = []  # Check if a bot can be upgraded
-        if card_count[2] > 0 and card_count[3] > 0:
-            for card in part_cards:
-                if card.cost <= p.ap:
-                    possible_upgrades.append(card)
-        if len(possible_upgrades) > 0:
-            available_choices.append('Upgrade a bot')
-            available_choices.append('Upgrade a bot')
-            available_choices.append('Upgrade a bot')
-
-        possible_swaps = []
-        good_resources = p.get_resource_types()
-        for resource in rh.pile:
-            if resource not in good_resources:
-                possible_swaps.append(resource)
-
-        if p.ap >= resource_swap_cost and len(possible_swaps) > 0:
-            available_choices.append('Swap a resource')
-            available_choices.append('Swap a resource')
-        if p.ap >= resource_refresh_cost:
-            available_choices.append('Refresh all resources')
-        if p.ap >= draw_cost:
-            available_choices.append('Draw a card')
-            available_choices.append('Draw a card')
-        available_choices.append('End Turn')
-
-        num_choice = randint(0, len(available_choices) - 1)
-        choice = available_choices[num_choice]
-
-        if choice == 'Build a bot':
-            bot_built = p.ai_build(possible_combos)
-            log[1].append(
-                [game_num, turn_num, p.name, 'Build', bot_built.components[0].name, bot_built.components[1].name,
-                 bot_built.position])
-        elif choice == 'Upgrade a bot':
-            [bot_upgraded, part_upgraded] = p.ai_upgrade(possible_upgrades)
-            log[1].append(
-                [game_num, turn_num, p.name, 'Upgrade', bot_upgraded.name, part_upgraded.name, bot_upgraded.position])
-        elif choice == 'Swap a resource':
-            [resource_position, old_resource, new_resource] = p.ai_swap_resource(rh)
-            log[1].append([game_num, turn_num, p.name, 'Swap', old_resource, new_resource, resource_position])
-        elif choice == 'Refresh all resources':
-            p.refresh_resources(rh)
-            log[1].append([game_num, turn_num, p.name, 'Refresh', "", "", 0])
-        elif choice == 'Draw a card':
-            card_drawn = p.draw()
-            log[1].append([game_num, turn_num, p.name, 'Draw', card_drawn.name, "", 0])
-        elif choice == 'End Turn':
+    for i in range(10):
+        available_actions, discount_list = calc_actions(p, p.action_list, p.ability_list)
+        if len(available_actions)>0:
+            c = rand_action(p, o, available_actions, discount_list, rh)
+            if len(c) < 3:
+                c.append("None")
+                if len(c) < 3:
+                    c.append("None")
+            if isinstance(c[1], Card):
+                c[1] = c[1].name
+            log[1].append([game_num, turn_num, p.name, c[0], c[1], c[2]])
+        else:
             break
-    p.attack(o)
+    return 1
 
 
 if __name__ == '__main__':

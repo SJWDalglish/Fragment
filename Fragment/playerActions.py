@@ -132,8 +132,9 @@ def build(p: Player, o: Player, show=False):
             elif answer == "n" or answer == "N":
                 continue
         break
+    bot_pos_selected = int(bot_num_selected) - 1
 
-    return build_bot(p, o, frame_selected, bot_num_selected, build_discount, show)
+    return build_bot(p, o, frame_selected, bot_pos_selected, build_discount, show)
 
 
 def build_bot(p, o, frame_selected, bot_num_selected, build_discount, show):
@@ -141,7 +142,7 @@ def build_bot(p, o, frame_selected, bot_num_selected, build_discount, show):
     new_bot = Bot(frame_selected, int(bot_num_selected))
     p.hand.remove(frame_selected)
     p.pp -= max(0, frame_selected.cost - build_discount)
-    p.bots[int(bot_num_selected) - 1] = new_bot
+    p.bots[bot_num_selected] = new_bot
 
     # Post action abilities
     for i in range(4):
@@ -171,6 +172,7 @@ def power(p: Player, o: Player, show=False):
             print('No bot selected.')
             continue
         break
+    bot_num_selected = int(bot_selected) - 1
 
     # Select a generator
     gen_cards = p.show_hand(Generator, power_discount)
@@ -181,12 +183,12 @@ def power(p: Player, o: Player, show=False):
     if gen_selected is None:
         return 0
 
-    return power_bot(p, o, gen_selected, bot_selected, power_discount, show)
+    return power_bot(p, o, gen_selected, bot_num_selected, power_discount, show)
 
 
 def power_bot(p, o, gen_selected, bot_selected, power_discount, show):
     # Clean up
-    p.bots[int(bot_selected) - 1].power(gen_selected)
+    p.bots[bot_selected].power(gen_selected)
     p.pp -= max(0, gen_selected.cost - power_discount)
     p.hand.remove(gen_selected)
 
@@ -197,7 +199,7 @@ def power_bot(p, o, gen_selected, bot_selected, power_discount, show):
 
     # Log action
     if show:
-        print(p.name + ' powered ' + p.bots[int(bot_selected) - 1].name)
+        print(p.name + ' powered ' + p.bots[bot_selected].name)
     p.actions.append("Power")
     return 1
 
@@ -218,6 +220,7 @@ def upgrade(p: Player, o: Player, show=False):
             print('No bot selected.')
             continue
         break
+    bot_num_selected = int(bot_selected) - 1
 
     # Select a part
     part_cards = p.show_hand(Part)
@@ -228,12 +231,12 @@ def upgrade(p: Player, o: Player, show=False):
     if part_selected is None:
         return 0
 
-    return upgrade_bot(p, o, part_selected, bot_selected, upgrade_discount, show)
+    return upgrade_bot(p, o, part_selected, bot_num_selected, upgrade_discount, show)
 
 
 def upgrade_bot(p, o, part_selected, bot_selected, upgrade_discount, show):
     # Clean up
-    p.bots[int(bot_selected) - 1].upgrade(part_selected)
+    p.bots[bot_selected].upgrade(part_selected)
     p.pp -= min(0, part_selected.cost - upgrade_discount)
     p.hand.remove(part_selected)
 
@@ -244,7 +247,7 @@ def upgrade_bot(p, o, part_selected, bot_selected, upgrade_discount, show):
 
     # Log action
     if show:
-        print(p.name + ' upgraded ' + p.bots[int(bot_selected) - 1].name)
+        print(p.name + ' upgraded ' + p.bots[bot_selected].name)
     p.actions.append("Upgrade")
     return 1
 
