@@ -14,10 +14,10 @@ _start_hp = 20
 _draw_cost = 1
 _resource_swap_cost = 1
 _refresh_cost = 2
-_move_cost = 1
+_move_cost = 2
 
 # Ability values
-_default_pp_gained = 2
+_default_pp_gained = 3
 _default_hp_gained = 2
 _special_pp_gained = 1
 

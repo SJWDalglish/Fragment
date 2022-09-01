@@ -34,7 +34,6 @@ def calc_actions(p: Player, acl, abl):
     discount_list = [build_discount, power_discount, upgrade_discount, move_discount, draw_discount, swap_discount]
 
     actions_list = []
-    movable = False
     for i in range(4):
         for card in p.hand:
             if isinstance(card, Frame):
@@ -68,6 +67,8 @@ def calc_actions(p: Player, acl, abl):
 
 
 def rand_action(p, o, action_list, discount_list, rh, show=False, log=[]):
+    if len(action_list) == 0:
+        return 0
     choice = random.choice(action_list)
     match choice[0]:
         case "Build":
@@ -104,21 +105,23 @@ def calc_discounts(p):
 def take_action(p, o, choice, discount_list, rh, show=False, log=[]):
     match choice[0]:
         case "Build":
-            playerActions.build_bot(p, o, choice[1], choice[2], discount_list[0], show)
+            e = playerActions.build_bot(p, o, choice[1], choice[2], discount_list[0], show)
         case "Power":
-            playerActions.power_bot(p, o, choice[1], choice[2], discount_list[1], show)
+            e = playerActions.power_bot(p, o, choice[1], choice[2], discount_list[1], show)
         case "Upgrade":
-            playerActions.upgrade_bot(p, o, choice[1], choice[2], discount_list[2], show)
+            e = playerActions.upgrade_bot(p, o, choice[1], choice[2], discount_list[2], show)
         case "Move":
-            playerActions.move_bot(p, o, choice[1], choice[2], discount_list[3], show)
+            e = playerActions.move_bot(p, o, choice[1], choice[2], discount_list[3], show)
         case "Action":
-            actions.attack(p, o, choice[1], choice[2], show)
+            e = actions.attack(p, o, choice[1], choice[2], show)
         case "Draw":
-            playerActions.draw(p, o, False, show)
+            e = playerActions.draw(p, o, False, show)
         case "Swap":
-            playerActions.swap_chosen_resource(p, o, choice[1], discount_list[5], rh, show)
+            e = playerActions.swap_chosen_resource(p, o, choice[1], discount_list[5], rh, show)
         case "Refresh":
-            playerActions.refresh_resources(p, o, rh, show)
+            e = playerActions.refresh_resources(p, o, rh, show)
+    if e == 0:
+        return e
     return choice
 
 
@@ -136,59 +139,85 @@ def copy_bot(p, num, show):
     return bot
 
 
-def rank_actions(p, o, rh, width, depth, show=False):
+def rank_actions(p, o, rh, width, depth, show=False, debug=False):
     acts = []
     for i in range(width):
-        p2 = p
-        p2.pp = p.pp
-        o2 = o
-        rh2 = rh
-
-        # Deep copy
-        for j in range(4):
-            p2.bots[j] = copy_bot(p, j, show)
-            o2.bots[j] = copy_bot(o, j, show)
-            rh2.pile[j] = rh.pile[j]
-        p2.hand = []
-        for card in p.hand:
-            p2.hand.append(card)
+        p2 = p.copy()
+        o2 = o.copy()
+        rh2 = rh.copy()
 
         # Run acts
         acts.append([0])
         for j in range(depth):
-            al, dl = calc_actions(p2, p.action_list, p.ability_list)
+            al, dl = calc_actions(p2, p2.action_list, p2.ability_list)
             if len(al) <= 0:
                 break
-            act = rand_action(p2, o2, al, dl, rh2, show)
+            act = random.choice(al)
             if act[0] == "Draw":
                 continue
+            if act[0] == "Action":
+                if act[2] == "Incentivize":
+                    continue
+            take_action(p2, o2, act, dl, rh2, False)
             acts[i].append(act)
 
         # Calc score
         score = 0
+        if o2.hp <= 0:
+            score += 1000
         score += o.hp - o2.hp
         for k in range(4):
             if not p2.bots[k].isblank():
-                score += p2.bots[k].resources.count(rh2.pile[k])
-                score += (p2.bots[k].current_hp - p.bots[k].current_hp) / 2
+                score += p2.bots[k].resources.count(rh2.pile[k]) / 2
+                score -= o2.bots[k].resources.count(rh2.pile[k]) / 2
+                score += (p2.bots[k].current_hp - o.bots[k].current_hp) / 4
+                score += (p2.bots[k].current_hp - p.bots[k].current_hp) / 4
         acts[i][0] = score
 
-    print(acts)
+    if debug:
+        print('Calculating best moves...\n---')
+        for al in acts:
+            for i, c in enumerate(al):
+                if i == 0:
+                    print('Score:', c)
+                elif c[0] == 'Build' or c[0] == "Power" or c[0] == 'Upgrade':
+                    print(c[0], c[1].name, 'at', c[2])
+                else:
+                    print(c)
+            print('---')
+
 
     top_choice = [0]
     for act in acts:
         if act[0] > top_choice[0]:
             top_choice = act
 
-    print("Choice=", top_choice)
+    if debug:
+        print("Choice=", top_choice)
 
-    for choice in top_choice:
+    for i, c in enumerate(top_choice):
         dl = calc_discounts(p)
-        if isinstance(choice, int):
+        if i == 0:
             continue
-        take_action(p, o, choice, dl, rh, show)
+        if debug:
+            if c[0] == 'Build' or c[0] == "Power" or c[0] == 'Upgrade':
+                print(c[0], c[1].name, 'at', c[2])
+            else:
+                print(c)
+        e = take_action(p, o, c, dl, rh, show)
+        if e == 0:
+            print('Failed on step', i, 'with this hand:')
+            p.show_hand()
+            print('---')
+            for i, c in enumerate(top_choice):
+                if i == 0:
+                    print('Score:', c)
+                elif c[0] == 'Build' or c[0] == "Power" or c[0] == 'Upgrade':
+                    print(c[0], c[1].name, 'at', c[2])
+                else:
+                    print(c)
 
-    return 1
+    return top_choice
 
 
 # AI methods

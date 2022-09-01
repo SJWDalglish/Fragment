@@ -139,6 +139,9 @@ def build(p: Player, o: Player, show=False):
 
 def build_bot(p, o, frame_selected, bot_num_selected, build_discount, show):
     # Clean up hand, minus pp, add bot
+    if not (frame_selected in p.hand):
+        print('Tried to build', frame_selected.name, "but couldn't find card in hand.")
+        return 0
     new_bot = Bot(frame_selected, int(bot_num_selected))
     p.hand.remove(frame_selected)
     p.pp -= max(0, frame_selected.cost - build_discount)
@@ -187,6 +190,10 @@ def power(p: Player, o: Player, show=False):
 
 
 def power_bot(p, o, gen_selected, bot_selected, power_discount, show):
+    if not (gen_selected in p.hand):
+        print('Tried to power', p.bots[bot_selected].name, 'with', gen_selected.name,"but couldn't find card in hand.")
+        return 0
+
     # Clean up
     p.bots[bot_selected].power(gen_selected)
     p.pp -= max(0, gen_selected.cost - power_discount)
@@ -235,6 +242,10 @@ def upgrade(p: Player, o: Player, show=False):
 
 
 def upgrade_bot(p, o, part_selected, bot_selected, upgrade_discount, show):
+    if not (part_selected in p.hand):
+        print('Tried to upgrade', p.bots[bot_selected].name, 'with', part_selected.name, "but couldn't find card in hand.")
+        return 0
+
     # Clean up
     p.bots[bot_selected].upgrade(part_selected)
     p.pp -= max(0, part_selected.cost - upgrade_discount)
@@ -396,7 +407,7 @@ def select_attack_list(p: Player, bot_num: int, select_text: str, show=False):
     return None
 
 
-def take_action(p: Player, o: Player, rh: ResourceHandler, show=False):
+def action(p: Player, o: Player, rh: ResourceHandler, show=False):
     p.show_bots()
     n = select_bot_list(p, "Select bot to attack with ")
     if n is None:

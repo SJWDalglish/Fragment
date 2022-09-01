@@ -3,6 +3,7 @@ types = ["Acquire", "Augment", "Consume", "Convert", "Cultivate", "Preserve"]
 resource_types = ["Biomass", "Power Cell", "Fossil Fuel", "Radioactive Material", "Weather Event"]
 max_parts = 2
 max_gens = 2
+resource_pp = 3
 
 
 class Card(object):
@@ -94,23 +95,23 @@ class Bot:
             self.atk_bonus += self.num_parts
         match gen.ability1:
             case 'Acquire':
-                self.resources.extend(['Power Cell', 'Power Cell'])
+                self.resources.extend(['Power Cell'] * resource_pp)
             case 'Augment':
-                self.resources.extend(['Power Cell', 'Power Cell'])
-                self.resources.extend(['Radioactive Material', 'Radioactive Material'])
+                self.resources.extend(['Power Cell'] * resource_pp)
+                self.resources.extend(['Radioactive Material'] * resource_pp)
             case 'Consume':
-                self.resources.extend(['Power Cell', 'Power Cell'])
-                self.resources.extend(['Fossil Fuel', 'Fossil Fuel'])
+                self.resources.extend(['Power Cell'] * resource_pp)
+                self.resources.extend(['Fossil Fuel'] * resource_pp)
             case "Convert":
-                self.resources.extend(['Power Cell', 'Power Cell'])
-                self.resources.extend(['Weather Event', 'Weather Event'])
+                self.resources.extend(['Power Cell'] * resource_pp)
+                self.resources.extend(['Weather Event'] * resource_pp)
             case "Cultivate":
-                self.resources.extend(['Power Cell', 'Power Cell'])
-                self.resources.extend(['Biomass', 'Biomass'])
+                self.resources.extend(['Power Cell'] * resource_pp)
+                self.resources.extend(['Biomass'] * resource_pp)
             case "Preserve":
-                self.resources.extend(['Power Cell', 'Power Cell', 'Power Cell'])
+                self.resources.extend(['Power Cell'] * (resource_pp + 1))
             case "Tinker":
-                self.resources.extend(resource_types)
+                self.resources.extend(resource_types * (resource_pp - 1))
 
     def display_name(self):
         print(self.name)

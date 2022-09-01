@@ -18,7 +18,7 @@ import datetime
 
 types = ["Acquire", "Augment", "Consume", "Convert", "Cultivate", "Preserve", "Tinker"]
 resource_types = ["Biomass", "Power Cell", "Fossil Fuel", "Radioactive Material", "Weather Event"]
-pp_per_turn = 3
+pp_per_turn = 2
 num_resources = 6
 hand_start_size = 6
 hand_draw_size = 1
@@ -193,7 +193,7 @@ def take_turn(player, opponent, resource_handler, show=False, log=[]):
     output = 1
 
     if player.ai:
-        output = aiActions.rank_actions(player, opponent, resource_handler, 10, 10, show)
+        output = aiActions.rank_actions(player, opponent, resource_handler, 50, 10, show, False)
         # output = take_turn_ai(player, opponent, resource_handler, show)
     else:
         output = take_turn_player(player, opponent, resource_handler, show)
@@ -247,7 +247,7 @@ def take_turn_player(player, opponent, resource_handler, show=False):
         #                '[4] Refresh resources\n[5] End turn\n[6] Draw a card\n[7] Exit')
         match choice:
             case 'Take action':
-                take_action(player, opponent, resource_handler, show)
+                action(player, opponent, resource_handler, show)
             case 'Build a bot':
                 build(player, opponent, show)
             case 'Power a bot':
@@ -388,19 +388,29 @@ def test_turn(p: Player, o: Player, rh: ResourceHandler, game_num: int, turn_num
     for i in range(hand_draw_size):
         draw(p, o, True)  # Draw a card
 
-    for i in range(10):
-        available_actions, discount_list = calc_actions(p, p.action_list, p.ability_list)
-        if len(available_actions)>0:
-            c = rand_action(p, o, available_actions, discount_list, rh)
+    for i, c in enumerate(rank_actions(p, o, rh, 50, 10)):
+        if i == 0:
+            continue
+        if len(c) < 3:
+            c.append("None")
             if len(c) < 3:
                 c.append("None")
-                if len(c) < 3:
-                    c.append("None")
-            if isinstance(c[1], Card):
-                c[1] = c[1].name
-            log[1].append([game_num, turn_num, p.name, c[0], c[1], c[2]])
-        else:
-            break
+        if isinstance(c[1], Card):
+            c[1] = c[1].name
+        log[1].append([game_num, turn_num, p.name, c[0], c[1], c[2]])
+    # for i in range(10):
+    #     available_actions, discount_list = calc_actions(p, p.action_list, p.ability_list)
+    #     if len(available_actions)>0:
+    #         c = rand_action(p, o, available_actions, discount_list, rh)
+    #         if len(c) < 3:
+    #             c.append("None")
+    #             if len(c) < 3:
+    #                 c.append("None")
+    #         if isinstance(c[1], Card):
+    #             c[1] = c[1].name
+    #         log[1].append([game_num, turn_num, p.name, c[0], c[1], c[2]])
+    #     else:
+    #         break
     return 1
 
 
