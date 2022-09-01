@@ -237,7 +237,7 @@ def upgrade(p: Player, o: Player, show=False):
 def upgrade_bot(p, o, part_selected, bot_selected, upgrade_discount, show):
     # Clean up
     p.bots[bot_selected].upgrade(part_selected)
-    p.pp -= min(0, part_selected.cost - upgrade_discount)
+    p.pp -= max(0, part_selected.cost - upgrade_discount)
     p.hand.remove(part_selected)
 
     # Post action abilities
@@ -268,7 +268,7 @@ def move(player: Player, opp: Player, show=False):
             print('No bot selected.')
             continue
         break
-    b1 = int(num_one_selected)
+    b1 = int(num_one_selected) - 1
 
     # Select a bot location
     player.show_bots()
@@ -276,11 +276,8 @@ def move(player: Player, opp: Player, show=False):
         num_two_selected = select_bot_list(player, 'Select a location to move to ')
         if num_two_selected is None:
             return 0
-        if player.bots[int(num_two_selected) - 1].isblank():
-            print('No bot selected.')
-            continue
         break
-    b2 = int(num_two_selected)
+    b2 = int(num_two_selected) - 1
 
     return move_bot(player, opp, b1, b2, move_discount, show)
 
@@ -300,7 +297,7 @@ def move_bot(p, o, b1, b2, move_discount, show):
     # Post action abilities
     for i in range(4):
         ab.hp_ability(p, o, i, "Rain Recollection", show)
-        ab.pp_ability(o, i, "Backdraft", show)
+        ab.pp_ability(o, i, "Reflection", show)
 
     # Log action
     if show:
@@ -335,7 +332,7 @@ def swap_chosen_resource(player: Player, opp: Player, num_choice: int, swap_disc
     # Blaze ability
     if o == 'Fossil Fuel':
         for bot in player.bots:
-            player.pp += bot.abilities.count("Blaze") * 4
+            player.pp += bot.abilities.count("Blaze") * 8
 
     # Post action abilities
     for i in range(4):

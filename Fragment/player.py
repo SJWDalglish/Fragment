@@ -87,7 +87,7 @@ class Player:
             if bot.isblank():
                 bot_list.append([" ", " ", " "])
             else:
-                abs = ', '.join(bot.abilities + bot.actions)
+                abs = '- '+'\n- '.join(bot.abilities + bot.actions)
                 bot_list.append([bot.name, str(int(bot.current_hp)) + "/" + str(int(bot.max_hp)) + "HP", abs])
         bot_list = np.array(bot_list).T.tolist()
         return bot_list

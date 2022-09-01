@@ -18,11 +18,11 @@ Pyro,Consume,2,4,,Consume,Burn
 Thurma,Consume,2,4,,Consume,Blaze
 Fira,Consume,2,4,,Consume,Frack
 Geo,Convert,1,2,,Convert,None
-Vapo,Convert,2,4,,Convert,Lightning
+Vapo,Convert,2,4,,Convert,Whirlwind
 Sola,Convert,2,4,,Convert,Storm Drain
 Ventra,Convert,2,4,,Convert,Hurricane
-Helio,Convert,2,4,,Convert,Refraction
-Hydro,Convert,2,4,,Convert,Rain recollection
+Helio,Convert,2,4,,Convert,Reflection
+Hydro,Convert,2,4,,Convert,Rain Recollection
 Herba,Cultivate,1,2,,Cultivate,None
 Flora,Cultivate,2,4,,Cultivate,Pollinate
 Fauna,Cultivate,2,4,,Cultivate,Leech
@@ -34,7 +34,7 @@ Concha,Preserve,2,4,,Preserve,Shield
 Mecha,Preserve,2,4,,Preserve,Recharge
 Techno,Preserve,2,4,,Preserve,Charge
 Cyclo,Preserve,2,4,,Preserve,Recycle
-Dyna,Preserve,2,4,,Preserve,Overcharge
+Dyna,Preserve,2,4,,Preserve,Lightning
 Spana,Tinker,1,2,,Tinker,None
 Sporo,Tinker,2,4,,Tinker,Streamline
 Weldo,Tinker,2,4,,Tinker,Reinforce

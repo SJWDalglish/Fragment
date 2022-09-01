@@ -218,6 +218,8 @@ def take_turn_player(player, opponent, resource_handler, show=False):
             available_choices.append('Power a bot')
         if card_count[2] > 0 and card_count[3] > 0:
             available_choices.append('Upgrade a bot')
+        if player.pp >= bot_move_cost:
+            available_choices.append('Move a bot')
         if player.pp >= resource_swap_cost:
             available_choices.append('Swap a resource')
         if player.pp >= resource_refresh_cost:
@@ -251,6 +253,8 @@ def take_turn_player(player, opponent, resource_handler, show=False):
                 power(player, opponent, show)
             case 'Upgrade a bot':
                 upgrade(player, opponent, show)
+            case 'Move a bot':
+                move(player, opponent, show)
             case 'Swap a resource':
                 swap_resource(player, opponent, resource_handler, show)
             case 'Refresh all resources':
@@ -292,9 +296,9 @@ def display_field(player: Player, opponent: Player, resource_handler: ResourceHa
     print('\n' + ('+' * 50) + '\n')
     opponent.show_stats()
     field = opponent.listify_bots()
-    field.extend([[" ", " ", " ", " "], resource_handler.pile, [" ", " ", " ", " "]])
+    field.extend([["*--------------*"] * 4, resource_handler.pile, ["*--------------*"] * 4])
     field.extend(player.listify_bots())
-    print(tabulate(field, maxcolwidths=[12 for i in range(4)]))
+    print(tabulate(field))
     # opponent.show_bots()
     # resource_handler.show_pile()
     # player.show_bots()

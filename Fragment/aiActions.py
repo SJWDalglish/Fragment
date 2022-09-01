@@ -46,7 +46,7 @@ def calc_actions(p: Player, acl, abl):
             if isinstance(card, Part):
                 if card.cost - upgrade_discount <= p.pp and (not p.bots[i].isblank()) and p.bots[i].num_parts < 2:
                     actions_list.append(["Upgrade", card, i])
-        if (not p.bots[i].isblank()) and (p.move_cost - move_discount <= p.pp):
+        if (not p.bots[i].isblank()) and ((p.move_cost <= p.pp) or (move_discount > p.actions.count('Move'))):
             for j in range(4):
                 if p.bots[j] != p.bots[i]:
                     actions_list.append(["Move", i, j])
@@ -87,6 +87,12 @@ def rand_action(p, o, action_list, discount_list, rh, show=False, log=[]):
         case "Refresh":
             playerActions.refresh_resources(p, o, rh, show)
     return choice
+
+
+def rank_actions(p, o, al, dl, rh, show):
+    p2 = p
+    o2 = o
+
 
 
 # AI methods
