@@ -89,10 +89,106 @@ def rand_action(p, o, action_list, discount_list, rh, show=False, log=[]):
     return choice
 
 
-def rank_actions(p, o, al, dl, rh, show):
-    p2 = p
-    o2 = o
+def calc_discounts(p):
+    bd = pd = ud = md = dd = sd = 0
+    for i in range(4):
+        bd += p.bots[i].abilities.count("Pollinate")
+        pd += p.bots[i].abilities.count("Lightning")
+        ud += p.bots[i].abilities.count("Fusion")
+        md += p.bots[i].abilities.count("Hurricane")
+        dd += p.bots[i].abilities.count("Agile")
+        sd += p.bots[i].abilities.count("Frack")
+    return [bd, pd, ud, md, dd, sd]
 
+
+def take_action(p, o, choice, discount_list, rh, show=False, log=[]):
+    match choice[0]:
+        case "Build":
+            playerActions.build_bot(p, o, choice[1], choice[2], discount_list[0], show)
+        case "Power":
+            playerActions.power_bot(p, o, choice[1], choice[2], discount_list[1], show)
+        case "Upgrade":
+            playerActions.upgrade_bot(p, o, choice[1], choice[2], discount_list[2], show)
+        case "Move":
+            playerActions.move_bot(p, o, choice[1], choice[2], discount_list[3], show)
+        case "Action":
+            actions.attack(p, o, choice[1], choice[2], show)
+        case "Draw":
+            playerActions.draw(p, o, False, show)
+        case "Swap":
+            playerActions.swap_chosen_resource(p, o, choice[1], discount_list[5], rh, show)
+        case "Refresh":
+            playerActions.refresh_resources(p, o, rh, show)
+    return choice
+
+
+def copy_bot(p, num, show):
+    l = len(p.bots[num].components)
+    for i in range(l):
+        comp = p.bots[num].components[l - i - 1]
+        if isinstance(comp, Frame):
+            bot = Bot(comp, num)
+        if isinstance(comp, Generator):
+            bot.power(Generator)
+        if isinstance(comp, Part):
+            bot.upgrade(comp)
+    bot.current_hp = p.bots[num].current_hp
+    return bot
+
+
+def rank_actions(p, o, rh, width, depth, show=False):
+    acts = []
+    for i in range(width):
+        p2 = p
+        p2.pp = p.pp
+        o2 = o
+        rh2 = rh
+
+        # Deep copy
+        for j in range(4):
+            p2.bots[j] = copy_bot(p, j, show)
+            o2.bots[j] = copy_bot(o, j, show)
+            rh2.pile[j] = rh.pile[j]
+        p2.hand = []
+        for card in p.hand:
+            p2.hand.append(card)
+
+        # Run acts
+        acts.append([0])
+        for j in range(depth):
+            al, dl = calc_actions(p2, p.action_list, p.ability_list)
+            if len(al) <= 0:
+                break
+            act = rand_action(p2, o2, al, dl, rh2, show)
+            if act[0] == "Draw":
+                continue
+            acts[i].append(act)
+
+        # Calc score
+        score = 0
+        score += o.hp - o2.hp
+        for k in range(4):
+            if not p2.bots[k].isblank():
+                score += p2.bots[k].resources.count(rh2.pile[k])
+                score += (p2.bots[k].current_hp - p.bots[k].current_hp) / 2
+        acts[i][0] = score
+
+    print(acts)
+
+    top_choice = [0]
+    for act in acts:
+        if act[0] > top_choice[0]:
+            top_choice = act
+
+    print("Choice=", top_choice)
+
+    for choice in top_choice:
+        dl = calc_discounts(p)
+        if isinstance(choice, int):
+            continue
+        take_action(p, o, choice, dl, rh, show)
+
+    return 1
 
 
 # AI methods
@@ -126,6 +222,7 @@ def ai_upgrade(player: Player, possible_upgrades, show=False):
     player.hand.remove(part_selected)
 
     return [upgrade_bots[bot_choice], part_selected]
+
 
 def ai_swap_resource(player: Player, rh, show=False, possible_swaps=[]):
     if possible_swaps == []:

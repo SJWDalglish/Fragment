@@ -35,3 +35,9 @@ class ResourceHandler:
             o, n = self.swap_resource(i)
             output.append([o, n])
         return output
+
+    def copy(self):
+        rh = ResourceHandler()
+        rh.deck = self.deck.copy()
+        rh.pile = self.pile.copy()
+        return rh

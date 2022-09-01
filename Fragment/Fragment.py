@@ -193,7 +193,8 @@ def take_turn(player, opponent, resource_handler, show=False, log=[]):
     output = 1
 
     if player.ai:
-        output = take_turn_ai(player, opponent, resource_handler, show)
+        output = aiActions.rank_actions(player, opponent, resource_handler, 10, 10, show)
+        # output = take_turn_ai(player, opponent, resource_handler, show)
     else:
         output = take_turn_player(player, opponent, resource_handler, show)
 

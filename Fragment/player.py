@@ -1,3 +1,5 @@
+import copy
+
 from tabulate import tabulate
 from random import randint, shuffle
 from card import *
@@ -130,3 +132,16 @@ class Player:
 
     def draw(self):
         self.hand.append(self.deck.pop())
+
+    def copy(self):
+        deck = copy.deepcopy(self.deck)
+        p = Player(self.name, self.resource, deck, self.action_list, self.ability_list, self.ai)
+        p.hp = self.hp
+        for i in range(4):
+            p.bots[i] = self.bots[i].copy()
+        p.hand = self.hand.copy()
+        p.discard = self.discard.copy()
+        p.pp = self.pp
+        p.actions = self.actions.copy()
+        p.def_bonus = self.def_bonus
+        return p

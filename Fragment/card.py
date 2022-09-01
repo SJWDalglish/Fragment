@@ -161,3 +161,15 @@ class Bot:
 
     def awaken(self):
         self.stunned = False
+
+    def copy(self):
+        b = Bot(self.components[len(self.components) - 1], self.position)
+        for comp in self.components:
+            if isinstance(comp, Frame):
+                continue
+            if isinstance(comp, Generator):
+                b.power(comp)
+            if isinstance(comp, Part):
+                b.upgrade(comp)
+        b.current_hp = self.current_hp
+        return b
